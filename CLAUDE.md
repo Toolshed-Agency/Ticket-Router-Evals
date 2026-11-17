@@ -59,6 +59,10 @@ phase. Superpowers' "rulings, not stalls" covers shaped and trivial decisions on
 gate is the pull request into `main`. Never commit to `main` directly. Never push or open a pull
 request without asking: pushing publishes.
 
+**Branch names.** Phase work: `phase-<n>/<name>` (for example `phase-1/foundation`), matching its
+plan in `docs/engineering/plans/`. Anything else: a Conventional Commits type and a short name
+(`docs/design-spec`, `fix/demo-cap`).
+
 **Commit messages** follow [Conventional Commits 1.0.0](https://www.conventionalcommits.org/en/v1.0.0/),
 plus these project rules:
 - Scopes, when used, come from this list (add to it here first): `router`, `prompts`, `data`,
