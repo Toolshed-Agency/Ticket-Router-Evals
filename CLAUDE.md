@@ -59,6 +59,19 @@ phase. Superpowers' "rulings, not stalls" covers shaped and trivial decisions on
 gate is the pull request into `main`. Never commit to `main` directly. Never push or open a pull
 request without asking: pushing publishes.
 
+**Commit messages** follow [Conventional Commits 1.0.0](https://www.conventionalcommits.org/en/v1.0.0/),
+plus these project rules:
+- Scopes, when used, come from this list (add to it here first): `router`, `prompts`, `data`,
+  `harness`, `metrics`, `judge`, `cli`, `site`, `demo`, `ci`, `docs`.
+- One extra type, `eval`, for result runs committed without a code change (model comparisons,
+  test-set runs): `eval(v3): test-set run on <model>`.
+- A change to a public contract (the ticket JSONL format, the router output schema, the results
+  file format, the CLI flags) is marked breaking: `!` after the type and a `BREAKING CHANGE:`
+  footer.
+- A commit that changes router behaviour (a prompt, router code, or the model) carries an
+  `Eval-Run: results/<run-id>.json` trailer naming the run that measured it.
+- The summary is imperative, under 72 characters, lowercase after the colon. The body says why.
+
 **Testing**
 - Code is written test-first: the harness, metrics, scoring, cache, CLI, schemas, and the demo
   Worker with its cap.
