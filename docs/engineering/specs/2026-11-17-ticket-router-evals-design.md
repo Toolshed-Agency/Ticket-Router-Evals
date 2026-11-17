@@ -1,13 +1,10 @@
 # Ticket Router Evals: design spec
 
-Date: 2026-11-17 · Status: draft for review · Supersedes: nothing (first spec)
+Date: 2026-11-17 · Supersedes: nothing (first spec)
 
 This is the whole-project design. It records what we are building, why, every decision made so
 far with the alternatives considered, and what is left to the builder. Each phase gets its own
 plan in `docs/engineering/plans/`, written just before that phase starts.
-
-Decisions are labelled by who made them: **maintainer** (decided by the project maintainer) or
-**engineering call** (proposed during design and not objected to; open to challenge in review).
 
 ---
 
@@ -86,7 +83,7 @@ databases, paid hosting. Rebuilding the original Make and Airtable version.
 
 ## 4. Decisions
 
-### Made during the walkthrough (maintainer)
+### Made during the walkthrough
 
 | Id | Decision | Alternatives considered | Why |
 |---|---|---|---|
@@ -102,14 +99,14 @@ databases, paid hosting. Rebuilding the original Make and Airtable version.
 | D10 | **Everything is free during development.** If free quota cannot carry the work: the router and judge use separate free quotas; runs resume across days from the cache; CI reports "incomplete" (neither pass nor fail) until a run completes; before phase 5, a free development model with a larger quota may replace Gemini. | Paid development runs from the one-time budget | Keeps the one-time budget for the model comparison |
 | D11 | **The site is on Cloudflare Pages under the subdomain, through one CNAME record; the demo Worker runs at its own workers.dev address.** | Move the company's DNS to Cloudflare and serve both from one Worker | The company's DNS is hosted elsewhere. Workers custom domains require the zone on Cloudflare; Pages accepts a subdomain CNAME from any DNS host. Smallest possible change |
 
-### Language rules (engineering call, extends D2)
+### Language rules (extends D2)
 
 - `en`: English. `ur`: Urdu script. `roman_ur`: Urdu in Latin letters (English words allowed).
 - `mixed`: the ticket switches between whole sentences or sections in different languages or
   scripts (an English paragraph then a Roman Urdu one; Urdu script alongside Roman Urdu).
 - Greetings and sign-offs ("Assalam o alaikum", "JazakAllah") do not count either way.
 
-### Stack (engineering calls)
+### Stack
 
 | Id | Decision | Alternatives considered | Why |
 |---|---|---|---|
