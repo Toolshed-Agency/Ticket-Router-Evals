@@ -12,8 +12,9 @@ result visible.
 traceable to a committed results file. Credibility is the product. A number that is fudged, typed
 in by hand or cannot be reproduced destroys it.
 
-Status as of 2026-11-17: planning. Nothing is built yet; the design spec comes next. See
-[docs/engineering/OPEN-WORK.md](docs/engineering/OPEN-WORK.md).
+Status as of 2026-11-17: planning. Nothing is built yet. The design spec is drafted and in review:
+[docs/engineering/specs/2026-11-17-ticket-router-evals-design.md](docs/engineering/specs/2026-11-17-ticket-router-evals-design.md).
+See also [docs/engineering/OPEN-WORK.md](docs/engineering/OPEN-WORK.md).
 
 ## Non-negotiables
 
@@ -106,8 +107,9 @@ doc, fix the doc in the same change and update its "as of" date.
 
 - Developed on Windows 11 (PowerShell 5.1 and Git Bash); CI runs on Linux. Text files are LF in
   the repo and in every working copy (`.gitattributes`), so file hashes match on every machine.
-- Planned stack, from the scope, to be confirmed in the design spec: Python 3.12 with uv and
-  Pydantic; Astro on Cloudflare Pages; one Cloudflare Worker; GitHub Actions.
+- Planned stack (design spec, section 4): Python 3.14 with uv, Ruff, pytest and Pydantic; Astro
+  on Cloudflare Pages; a Python Worker for the live demo; GitHub Actions. Development uses free
+  model tiers only.
 
 ## Commands
 
