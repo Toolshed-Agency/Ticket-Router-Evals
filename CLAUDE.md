@@ -12,8 +12,10 @@ result visible.
 traceable to a committed results file. Credibility is the product. A number that is fudged, typed
 in by hand or cannot be reproduced destroys it.
 
-Status as of 2026-11-17: planning. Nothing is built yet. The design spec is drafted and in review:
+Status as of 2026-11-18: phase 1 (foundation and probes) in progress on `phase-1/foundation`. The
+project, its checks and CI are built; the probes are next. The design spec is approved:
 [docs/engineering/specs/2026-11-17-ticket-router-evals-design.md](docs/engineering/specs/2026-11-17-ticket-router-evals-design.md).
+Phase 1 plan: [docs/engineering/plans/2026-11-18-phase-1-foundation.md](docs/engineering/plans/2026-11-18-phase-1-foundation.md).
 See also [docs/engineering/OPEN-WORK.md](docs/engineering/OPEN-WORK.md).
 
 ## Non-negotiables
