@@ -113,4 +113,12 @@ doc, fix the doc in the same change and update its "as of" date.
 
 ## Commands
 
-None yet. Add each one here when it exists.
+Add each one here when it exists. All run from the repo root; uv installs Python 3.14 itself.
+
+| Command | Does |
+|---|---|
+| `uv sync` | Installs the project and its pinned dev tools from `uv.lock` |
+| `uv run ruff format .` | Formats the code (`--check` to only report) |
+| `uv run ruff check .` | Lints |
+| `uv run mypy` | Type checks in strict mode |
+| `uv run pytest` | Runs the tests |

@@ -19,4 +19,33 @@ module-root = ""
 module-name = ["harness", "router", "evals"]
 
 [dependency-groups]
-dev = ["pytest==9.2.0"]
+dev = [
+    "mypy==2.4.1",
+    "pytest==9.2.0",
+    "ruff==0.17.5",
+]
+
+[tool.ruff]
+target-version = "py314"
+line-length = 100
+# Code in Markdown (plans, specs) is illustrative and wrapped for reading, not for running.
+extend-exclude = ["*.md"]
+
+[tool.ruff.lint]
+# Bugs, imports, modern syntax, simplifications, Ruff's own, pytest style, security (plan P1-D4).
+select = ["E", "W", "F", "I", "B", "UP", "SIM", "RUF", "PT", "S"]
+
+[tool.ruff.lint.per-file-ignores]
+# Tests assert (S101) and run git and python as subprocesses with fixed arguments (S603, S607).
+"tests/**" = ["S101", "S603", "S607"]
+
+[tool.mypy]
+strict = true
+python_version = "3.14"
+files = ["harness", "router", "evals", "tests"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["."]
+addopts = "-ra --strict-markers --strict-config"
+xfail_strict = true
