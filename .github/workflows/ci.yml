@@ -1,0 +1,61 @@
+# Lint, type check, tests and a secret scan on every push and pull request (spec section 11).
+# Runs on fork pull requests too, so it uses no secrets and can only read the repo.
+# Actions are pinned to full commit SHAs (plan P1-D5); the comment names the release.
+name: ci
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.event_name }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  checks:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    strategy:
+      matrix:
+        # Phase 1 Task 11 adds the Python Workers version here if it differs (spec S2).
+        python: ["3.14"]
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: astral-sh/setup-uv@68559e99cc807c1eb7e9238fd43a15bba460eec2  # v10.3.3
+        with:
+          version: "0.13.9"
+          python-version: ${{ matrix.python }}
+          enable-cache: true
+      - run: uv sync --locked
+      - run: uv run ruff format --check .
+      - run: uv run ruff check .
+      - run: uv run mypy
+      - run: uv run pytest
+
+  secret-scan:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
+        with:
+          fetch-depth: 0  # the whole history, not only the latest commit
+          persist-credentials: false
+      - name: Install gitleaks 8.30.1
+        # The CLI is MIT licensed; the gitleaks GitHub Action needs a licence key for organisation
+        # repos (plan P1-D8). The expected checksum is fixed here, not read from the release.
+        env:
+          VERSION: "8.30.1"
+          SHA256: 551f6fc83ea457d62a0d98237cbad105af8d557003051f41f3e7ca7b3f2470eb
+        run: |
+          tarball="gitleaks_${VERSION}_linux_x64.tar.gz"
+          curl -sSfLO "https://github.com/gitleaks/gitleaks/releases/download/v${VERSION}/${tarball}"
+          echo "${SHA256}  ${tarball}" | sha256sum --check
+          tar -xzf "${tarball}" gitleaks
+      - name: Scan the full history for secrets
+        run: ./gitleaks git --redact --exit-code 1 -v .
