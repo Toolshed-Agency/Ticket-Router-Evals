@@ -25,6 +25,10 @@ dev = [
     "pytest==9.2.0",
     "ruff==0.17.5",
 ]
+probes = [
+    "google-genai>=3.5.0",
+    "pydantic>=2.14.3",
+]
 
 [tool.ruff]
 target-version = "py314"
