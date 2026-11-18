@@ -221,6 +221,7 @@ __marimo__/
 # Internal planning material (scope of work, internal asks). Never public.
 /project_reference
 
-# Cloudflare Python Workers (pywrangler installs packages here) and wrangler state
+# Cloudflare Python Workers (pywrangler installs packages and a Pyodide venv here) and wrangler state
 python_modules/
+.venv-workers/
 .wrangler/
