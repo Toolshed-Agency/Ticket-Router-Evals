@@ -392,7 +392,10 @@ Tuning will expose some wrong gold labels. Corrections are allowed, in the open:
   dataset version (1.0 to 1.1). The agreement report publishes the number of corrections.
 - Ticket inputs are not edited after the freeze (except to remove anything that should never have
   been there), so stored outputs stay valid: `rescore` re-scores any run against any dataset
-  version without calling a model.
+  version without calling a model. One exception: issue coverage depends on the judge's reading
+  of the gold `issues`, so a correction to a ticket's gold `issues` re-runs the judge's coverage
+  check on that ticket only, in each published run. The new verdicts are committed alongside the
+  runs (results files are never overwritten), so later rescores still need no key.
 - On a version bump every published run is rescored, and the site only compares runs scored on
   the same dataset version. A pull request that changes labels is gated against `main`'s results
   rescored on the new version, so a label fix never looks like a router regression.
@@ -440,7 +443,10 @@ language. Each slice has its own headline measure, matching what it tests:
 urgency, escalation and language all match the answer key. The judge's "safe to send" is a separate
 filter.
 
-**Uncertainty.** Every proportion carries a Wilson 95% interval and its n. The site never shows a
+**Uncertainty.** Every proportion carries a Clopper-Pearson (exact) 95% interval and its n. Exact
+intervals are conservative: they never claim more certainty than the counts support, which
+matters most with about 5 P1s in test (5 of 5 gives 48% to 100%). Wilson intervals are narrower,
+but at small counts can cover the true rate less often than the stated 95%. The site never shows a
 headline proportion without both. `compare` lists the tickets that flipped rather than claiming
 significance the counts cannot support.
 
