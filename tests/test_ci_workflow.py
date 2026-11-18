@@ -1,4 +1,4 @@
-"""ci.yml runs on every pull request, forks included, so it must hold no secrets and write nothing."""
+"""ci.yml runs on every pull request, forks included: it must hold no secrets and write nothing."""
 
 import re
 import shutil
