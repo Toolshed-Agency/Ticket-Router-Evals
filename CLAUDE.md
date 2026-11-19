@@ -14,8 +14,8 @@ in by hand or cannot be reproduced destroys it.
 
 Status as of 2026-11-19: phase 1 (foundation and probes) is merged. The project, its checks and CI
 are built; four of the five probes are done (the Pages domain probe waits for the subdomain and a
-DNS record). Phase 2 (contracts and guides) is in progress on `phase-2/contracts`: the
-contracts are built and the policy, labelling guide, scenario list and rubric are in review. The
+DNS record). Phase 2 (contracts and guides) is built on `phase-2/contracts`: the contracts, the
+policy, the labelling guide, the scenario list and the rubric draft, in final review. The
 design spec is approved and updated with the probe results and the phase 2 contracts:
 [docs/engineering/specs/2026-11-17-ticket-router-evals-design.md](docs/engineering/specs/2026-11-17-ticket-router-evals-design.md).
 Phase 1 plan: [docs/engineering/plans/2026-11-18-phase-1-foundation.md](docs/engineering/plans/2026-11-18-phase-1-foundation.md).

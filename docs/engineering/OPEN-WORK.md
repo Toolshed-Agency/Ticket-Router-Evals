@@ -24,8 +24,8 @@ Everything still to do. Items leave this file when they ship. As of 2026-11-19.
       checks and the published JSON Schemas.
 - [x] Phase 2: a consistency review of the drafts, spec, plans and code; the fixes Ajlal approved
       are in (plan execution log, 2026-11-19).
-- [ ] Phase 2, Tasks 6 to 9: Ajlal reviews the policy, labelling guide, scenario premises and
-      rubric; then each is committed.
+- [x] Phase 2, Tasks 6 to 9: the policy, labelling guide, scenario list and rubric draft,
+      reviewed by Ajlal.
 - [ ] Phase 2, Task 10: docs, an independent review of the branch, and the pull request.
 
 ## Follow-ups for later phases
