@@ -66,7 +66,7 @@ make 1 (142 calls).
 | Workload | Calls | Flash class (20 a day) | One Flash-Lite model (500 a day) |
 |---|---|---|---|
 | One v3 dev run | 284 | 15 days | 19 minutes at 15 a minute; 1.7 runs a day |
-| Pull-request gate (v3, plus about 20 re-run calls for flips) | about 300 | 15 days | about 20 minutes; about one gate a day |
+| Pull-request gate (v3, plus about 20 re-run calls for flips) | about 300 | 15 days | about 20 minutes; one gate leaves about 200 of the day's 500 calls |
 | Ablation (5 runs of v3) | 1,420 | months | about 3 days of quota, resumed from the cache (D10) |
 | Consistency, `--repeat 3` on v1, v2 and v3 | 1,704 | months | about 3.5 days |
 
@@ -82,12 +82,19 @@ The two Flash-Lite models have separate quotas (500 a day each).
    backoff on 429, 503 and 504 (honouring `retry after`), and resume from the cache. Section 6 of
    the spec already requires retries and resume; the timeout is new.
 3. **The ablation fits (D4)** on Flash-Lite, spread over about three days through the cache.
-4. **CI timing:** a pull-request gate takes about 20 minutes, and about one gate a day fits beside
-   local tuning on the same quota. CI reports "incomplete" when quota runs out (D10).
+4. **CI timing:** a pull-request gate takes about 20 minutes and about 300 calls. CI and local
+   tuning share the project's 500 a day, so a day with one gate leaves about 200 calls for tuning,
+   less than one more v3 dev run. CI reports "incomplete" when quota runs out (D10).
 5. **Judge (section 10):** the second Flash-Lite model has its own 500-a-day quota, so the judge
    need not share the router's. The judge is chosen and calibrated in phase 6.
 
-## Recommendation (needs a decision: model choice is sticky)
+## Recommendation (decided by Ajlal, 2026-11-19, with one change)
+
+Decision: the Flash-Lite family, with 3.5 Flash-Lite until phase 5. At its start, before any
+tuning, v1 runs on the frozen dev set with 3.1 and 3.5 Flash-Lite; the better on accuracy and
+reply language becomes the development model and the other the judge candidate (spec S11).
+
+The recommendation as first made:
 
 **Development model: Gemini 3.5 Flash-Lite. Judge candidate: Gemini 3.1 Flash-Lite**, each on its
 own free quota. The model comparison in phase 7 still covers a full Flash model and the other

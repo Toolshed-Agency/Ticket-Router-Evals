@@ -32,13 +32,13 @@ Read Langfuse's own pages on 2026-11-19 (none shows a "last updated" date):
 ## Usage estimate
 
 Assume one trace per ticket and one observation per model call. v3 is assumed to make 2 calls per
-ticket on the ~142 scored dev tickets; Task 6 replaces this with the measured figure. That gives
+ticket on the ~142 scored dev tickets; Task 6 kept the same assumption, and phase 5 measures it. That gives
 about 3 units per ticket and about 430 units per run.
 
 | Run | Units (approx.) |
 |---|---|
 | One v3 dev run | 430 |
-| `--repeat 3` | 1,300 |
+| `--repeat 3` on v3 | 1,300 |
 | Ablation (5 runs) | 2,150 |
 | Judge on one run (one observation per draft) | 140 |
 

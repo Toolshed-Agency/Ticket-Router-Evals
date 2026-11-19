@@ -109,7 +109,7 @@ databases, paid hosting. Rebuilding the original Make and Airtable version.
 | D6 | **The judge scores pass/fail per criterion, with a one-line reason each.** The 1 to 5 score is derived: 1 + criteria passed. | One holistic 1 to 5 score | People agree far more on yes/no criteria; failures say what went wrong |
 | D7 | **The CI gate confirms flips before failing.** Run dev once; re-run only tickets whose labels changed from `main`, on both versions; a flip counts only if it holds up. Then the scope's thresholds apply as written. | A: one run vs stored result. C: run everything three times | Keeps "fail on any P1 drop" without failing on noise; costs a few calls |
 | D8 | **The demo runs on Gemini's free tier.** We never store submitted text; the free tier's terms (Google may use submitted content to improve its products) are stated next to the box. | A paid tier for the demo (cents a month) | $0 running cost, as long as free is also robust |
-| D9 | **The demo is switched off for visitors in the EEA, Switzerland and the UK** (and anyone whose country is unknown). They see a message and a link to the ticket explorer. | B: an open model on Cloudflare Workers AI for everyone. C: a paid tier for those visitors | Gemini's terms require paid services for apps available there. B is tested: feasible within the free allocation (phase 1 probe, Gemma 4 26B), scored in phase 7; if it scores close to the development model, the demo switches to it for everyone |
+| D9 | **The demo is switched off for visitors in the EEA, Switzerland and the UK** (and anyone whose country is unknown). They see a message and a link to the ticket explorer. | B: an open model on Cloudflare Workers AI for everyone. C: a paid tier for those visitors | Gemini's terms require paid services for apps available there. B is tested: feasible within the free allocation (phase 1 probe; candidate Gemma 4 26B), scored in phase 7; if it scores close to the development model, the demo switches to it for everyone |
 | D10 | **Everything is free during development.** If free quota cannot carry the work: the router and judge use separate free quotas; runs resume across days from the cache; CI reports "incomplete" (neither pass nor fail) until a run completes; before phase 5, a free development model with a larger quota may replace Gemini. **Applied after the phase 1 probe:** development uses Gemini Flash-Lite (500 requests a day), not a Flash-class model (20 a day); see S11 | Paid development runs from the one-time budget | Keeps the one-time budget for the model comparison |
 | D11 | **The site is on Cloudflare Pages under the subdomain, through one CNAME record; the demo Worker runs at its own workers.dev address.** | Move the company's DNS to Cloudflare and serve both from one Worker | The company's DNS is hosted elsewhere. Workers custom domains require the zone on Cloudflare; Pages accepts a subdomain CNAME from any DNS host. Smallest possible change |
 
@@ -134,10 +134,10 @@ databases, paid hosting. Rebuilding the original Make and Airtable version.
 | S5 | **v2 and v3 request the provider's native structured output** (JSON schema), and validate with Pydantic with one retry anyway | Prompt for JSON and parse | What production code does in 2026; v1 shows what happens without it |
 | S6 | **Astro** for the site, with React only for interactive parts | Next.js static export; Python-generated pages; data-report tools | Built for mostly-static sites with interactive islands; ships little JavaScript, fast on phones |
 | S7 | **Cloudflare**, one account: Pages for the site, a Worker for the demo (D11) | Vercel (free plan forbids commercial use); Netlify; GitHub Pages (no backend) | Free for commercial use; Pages, Workers, Turnstile and Durable Objects in one place. Workers with static assets was the first pick; D11 explains the change |
-| S8 | **The demo runs the same Python router code in a Python Worker**, confirmed by the phase 1 probe: Python 3.14, Pydantic and a SQLite Durable Object all work on Workers Free. Imports sit at module level, which Python Workers snapshot at deploy; inside a request handler they cost up to 1.5 s of CPU for each new copy of the Worker. Fallback, kept in case the runtime changes: prompts, definitions and policy as shared files, a thin TypeScript Worker, and a CI parity test proving identical prompts and parsing. Never a TypeScript copy of v3 | TypeScript rewrite | A demo that drifts from what was scored is quietly dishonest |
+| S8 | **The demo runs the same Python router code in a Python Worker**, chosen after the phase 1 probe, provisionally: Python 3.14, Pydantic and a SQLite Durable Object all work on Workers Free, but a v3-sized call used 18 ms of CPU typical against a documented 10 ms that allows only occasional overruns, and start-up was reported at 1.0 to 1.3 s against a documented 1 s. Imports sit at module level, which Python Workers snapshot at deploy; inside a request handler they cost up to 1.5 s of CPU for each new copy of the Worker. Phase 9 tests the real v3 code under sustained use; any 1102 error, or a deploy rejected for start-up time, switches the demo to the fallback: prompts, definitions and policy as shared files, a thin TypeScript Worker, and a CI parity test proving identical prompts and parsing. Never a TypeScript copy of v3 | TypeScript rewrite | A demo that drifts from what was scored is quietly dishonest |
 | S9 | **Demo cap in a Durable Object** (SQLite, Workers Free), plus Turnstile and a per-visitor limit | Workers KV counter | Exact count; KV is eventually consistent and can overshoot |
 | S10 | **Deploys only from GitHub Actions** | Cloudflare's Git builds | Every check gates the deploy in one place |
-| S11 | **Models:** Gemini free tier, **Flash-Lite**, for development and the demo: Flash-class models allow 20 requests a day free, Flash-Lite 500 (phase 1 probe). Gemini 3.5 Flash-Lite until phase 5. At its start, once the dataset is frozen and before any tuning, v1 runs on the dev set with 3.1 and 3.5 Flash-Lite; the better on accuracy and reply language becomes the development model, and the other is the judge candidate (section 10). Comparison as scoped: v3 on 3 to 4 current models, aiming for the development model, a full Gemini Flash model, a small Claude model and a small OpenAI model, exact ids chosen in phase 7 from current price lists and paid from small credits on 2 to 3 providers, plus Gemma 4 26B on Workers AI as a free entry (D9; the phase 1 probe showed it can run v3) | Fix model names now; a Flash-class development model | Names and prices change monthly; Flash's free quota cannot carry development |
+| S11 | **Models:** Gemini free tier, **Flash-Lite**, for development and the demo: Flash-class models allow 20 requests a day free, Flash-Lite 500 (phase 1 probe). Gemini 3.5 Flash-Lite until phase 5. At its start, once the dataset is frozen and before any tuning, v1 runs on the dev set with 3.1 and 3.5 Flash-Lite; the better on accuracy and reply language becomes the development model, and the other is the judge candidate (section 10). Comparison as scoped: v3 on 3 to 4 current models, aiming for the development model, a full Gemini Flash model, a small Claude model and a small OpenAI model, exact ids chosen in phase 7 from current price lists and paid from small credits on 2 to 3 providers, plus a free Workers AI model (D9; candidate Gemma 4 26B, which the phase 1 probe showed can run v3; confirmed in the phase 7 plan) | Fix model names now; a Flash-class development model | Names and prices change monthly; Flash's free quota cannot carry development |
 | S12 | **Reproducing a number never needs an API key.** Results files store every raw output and judge verdict; `ticket-evals rescore` recomputes all metrics from them. The model-response cache is never committed: locally it is a folder, in CI it lives in the GitHub Actions cache (section 11) | Commit the response cache | Same verifiability without a large cache in git; rerunning models needs a (free) key anyway |
 | S13 | **Optional Langfuse tracing** (Langfuse Cloud free tier) behind environment variables: off unless they are set, and never needed to run, score or reproduce anything | No tracing | As scoped; useful while tuning prompts |
 
@@ -622,10 +622,10 @@ As scoped:
   (team, urgency, escalation decision, issues, language, draft reply and reasoning), plus the
   model and prompt hash it ran on.
 - **Runtime (S8, D11):** the same router code in a Python Worker at its own workers.dev address,
-  called by the site (CORS allows only the site's origin), as the phase 1 probe confirmed. Gemini
-  is called over HTTP (S4). The probe measured a v3-sized call at 18 ms of CPU typical and 64 ms at
-  most: above the Free plan's documented 10 ms, but every call completed. Phase 9 re-measures with
-  the real v3 code (risks, section 15).
+  called by the site (CORS allows only the site's origin), provisionally (S8). Gemini is called over
+  HTTP (S4). The phase 1 probe measured a v3-sized call at 18 ms of CPU typical and 64 ms at most,
+  over the Free plan's documented 10 ms, which allows only occasional overruns; phase 9 tests the
+  real v3 code under sustained use before launch (risks, section 15).
 - **Regions (D9):** switched off for visitors in the EEA, Switzerland and the UK, and for any
   visitor whose country Cloudflare cannot determine. They see that the live demo is not available
   in their region, with a link to the ticket explorer.
@@ -665,13 +665,15 @@ on people.
 **Probes** (phase 1; each report is dated, in `docs/engineering/probes/`):
 - Python Workers: Python version, Pydantic, Google's SDK or plain HTTP, cold start, Durable
   Object access from Python. Done 2026-11-19
-  ([report](../probes/2026-11-19-python-workers.md)): decided S2, S4 and S8.
+  ([report](../probes/2026-11-19-python-workers.md)): decided S2 and S4; S8 holds provisionally
+  until phase 9.
 - Gemini free tier: limits for the development model and a candidate judge; time for one v3 dev
   run. Done 2026-11-19 ([report](../probes/2026-11-19-gemini-free-tier.md)): decided S11 and
   D10; the ablation fits (D4); a pull-request gate takes about 20 minutes.
 - Workers AI: whether an open model can run v3 within the free daily allocation, and a first look
   at its Urdu and Roman Urdu output. Done 2026-11-19
-  ([report](../probes/2026-11-19-workers-ai.md)): Gemma 4 26B joins the comparison (D9, S11).
+  ([report](../probes/2026-11-19-workers-ai.md)): a Workers AI model can run v3 for free; Gemma 4
+  26B is the candidate for the comparison (D9, S11), confirmed in the phase 7 plan.
 - Pages custom domain through a CNAME at an external DNS host (D11). Waiting for the subdomain and
   the DNS record (open questions below); it blocks phase 9 only.
 - Langfuse Cloud free tier limits. Done 2026-11-19
@@ -684,7 +686,7 @@ on people.
 | Labellers or reviewers not available | Dataset, and everything after it, slips | Ask early; phases 1, 2, 4 proceed meanwhile |
 | Free-tier limits too low | Slow development and CI; ablation does not fit | Probe first; D10 fallbacks; D4 fallback; cache aggressively |
 | Free tier overloaded (503, 504) | Slow or incomplete runs | Request timeouts, retries with backoff, resume from the cache, CI "incomplete" (D10) |
-| The demo's CPU exceeds the Free plan's limit | The demo would need Workers Paid ($5 a month) | Imports at module level (S8); re-measured with the real v3 code in phase 9 |
+| The demo's CPU or start-up exceeds the Free plan's limits | Requests fail (error 1102) or deploys are rejected | Imports at module level (S8); a sustained test of the real v3 code in phase 9; the TypeScript fallback (S8), or Workers Paid ($5 a month) only with approval |
 | About 5 P1s in test | Wide intervals on the headline | Intervals shown everywhere (D3) |
 | Prompt fits the development model best | Comparison skewed | Stated in methodology |
 | LLM-drafted tickets easier or biased | Scores flattered | Hand edits, ~10% handwritten, `drafted_by` analysis |
@@ -721,7 +723,7 @@ changes, interprets or adds to it, so nothing is a surprise.
 | v1: one short prompt ("classify this ticket") | One short prompt that names every output field | A fair v1, not a straw man | §9 |
 | v2: JSON schema enforced with Pydantic validation and one retry | The provider's native structured output, plus Pydantic validation and one retry | What production code does now; v1 shows the difference | S5 |
 | v2: 6 to 8 few-shot examples from the dev set | Same, and those tickets are excluded from scoring for every version (~142 scored) | Otherwise v2 is graded on answers in its own prompt | §7 |
-| v3 compared on 3 to 4 models | Same, plus Gemma 4 26B on Workers AI, which the phase 1 probe showed can run v3 | A free option that covers every country for the demo | S11, D9 |
+| v3 compared on 3 to 4 models | Same, plus a free Workers AI model (candidate: Gemma 4 26B, which the phase 1 probe showed can run v3) | A free option that covers every country for the demo | S11, D9 |
 | "Caught P1s ÷ all gold P1s" | Caught means a predicted P1; "missed, but sent to a human" shown beneath | Cannot be accused of flattering | D5 |
 | Test set run only once per final version | Once per final version per model; the first run is the headline, any later run is listed | The model comparison needs one test run per model | §7, §12 |
 | Mix given as "about" and "roughly" | Slice counts exact; language and team counts within 3 tickets | We write the tickets to the slice counts | §7 |
