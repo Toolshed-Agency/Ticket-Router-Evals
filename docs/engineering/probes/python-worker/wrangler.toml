@@ -1,0 +1,15 @@
+# Throwaway phase 1 probe (Task 7). The account comes from CLOUDFLARE_ACCOUNT_ID at deploy time,
+# so no account id is committed; only one account is visible to this login.
+name = "zzz-probe-python-worker"
+main = "src/entry.py"
+compatibility_date = "2026-11-18"
+compatibility_flags = ["python_workers"]
+workers_dev = true
+
+[[durable_objects.bindings]]
+name = "COUNTER"
+class_name = "Counter"
+
+[[migrations]]
+tag = "v1"
+new_sqlite_classes = ["Counter"]

@@ -1,0 +1,56 @@
+[project]
+name = "ticket-router-evals"
+version = "0.1.0"
+description = "An open-source exam for an AI support-ticket router, with every score published."
+readme = "README.md"
+requires-python = ">=3.14"
+license = "MIT"
+license-files = ["LICENSE"]
+dependencies = []
+
+[build-system]
+requires = ["uv_build>=0.13.9,<0.14"]
+build-backend = "uv_build"
+
+[tool.uv.build-backend]
+# Flat layout with three top-level packages (plan P1-D1). harness/ is the general machinery;
+# router/ and evals/ are the Ledgerly-specific parts (spec D1, section 5).
+module-root = ""
+module-name = ["harness", "router", "evals"]
+
+[dependency-groups]
+dev = [
+    "actionlint-py==1.7.12.25",
+    "mypy==2.4.1",
+    "pytest==9.2.0",
+    "ruff==0.17.5",
+]
+probes = [
+    "google-genai>=3.5.0",
+    "pydantic>=2.14.3",
+]
+
+[tool.ruff]
+target-version = "py314"
+line-length = 100
+# Code in Markdown (plans, specs) is illustrative and wrapped for reading, not for running.
+extend-exclude = ["*.md"]
+
+[tool.ruff.lint]
+# Bugs, imports, modern syntax, simplifications, Ruff's own, pytest style, security (plan P1-D4).
+select = ["E", "W", "F", "I", "B", "UP", "SIM", "RUF", "PT", "S"]
+
+[tool.ruff.lint.per-file-ignores]
+# Tests assert (S101) and run git and python as subprocesses with fixed arguments (S603, S607).
+"tests/**" = ["S101", "S603", "S607"]
+
+[tool.mypy]
+strict = true
+python_version = "3.14"
+files = ["harness", "router", "evals", "tests"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["."]
+addopts = "-ra --strict-markers --strict-config"
+xfail_strict = true

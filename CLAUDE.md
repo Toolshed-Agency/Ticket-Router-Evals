@@ -12,8 +12,11 @@ result visible.
 traceable to a committed results file. Credibility is the product. A number that is fudged, typed
 in by hand or cannot be reproduced destroys it.
 
-Status as of 2026-11-17: planning. Nothing is built yet. The design spec is drafted and in review:
+Status as of 2026-11-19: phase 1 (foundation and probes) on `phase-1/foundation`. The project, its
+checks and CI are built; four of the five probes are done (the Pages domain probe waits for the
+subdomain and a DNS record). The design spec is approved and updated with the probe results:
 [docs/engineering/specs/2026-11-17-ticket-router-evals-design.md](docs/engineering/specs/2026-11-17-ticket-router-evals-design.md).
+Phase 1 plan: [docs/engineering/plans/2026-11-18-phase-1-foundation.md](docs/engineering/plans/2026-11-18-phase-1-foundation.md).
 See also [docs/engineering/OPEN-WORK.md](docs/engineering/OPEN-WORK.md).
 
 ## Non-negotiables
@@ -113,4 +116,12 @@ doc, fix the doc in the same change and update its "as of" date.
 
 ## Commands
 
-None yet. Add each one here when it exists.
+Add each one here when it exists. All run from the repo root; uv installs Python 3.14 itself.
+
+| Command | Does |
+|---|---|
+| `uv sync` | Installs the project and its pinned dev tools from `uv.lock` |
+| `uv run ruff format .` | Formats the code (`--check` to only report) |
+| `uv run ruff check .` | Lints |
+| `uv run mypy` | Type checks in strict mode |
+| `uv run pytest` | Runs the tests |
