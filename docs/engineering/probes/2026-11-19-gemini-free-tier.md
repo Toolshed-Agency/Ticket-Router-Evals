@@ -52,6 +52,12 @@ of every ticket. A first look at what they chose, not a score: both resisted the
 (not refunds, not P1), marked the outage and the suspected takeover P1 with escalation, and
 labelled the Roman Urdu, Urdu-script and mixed tickets correctly.
 
+The drafts were not identical across rounds, even at temperature 0. Ajlal read every non-English
+draft (2026-11-19): fine overall, but 3.5 Flash-Lite answered the Roman Urdu takeover ticket in
+English in one of its three rounds (in Roman Urdu in the other two). 3.1 Flash-Lite answered it in
+Roman Urdu all three times. One draft in nine is too few to separate the two models, but it is the
+kind of error the judge's "matches the customer's language" criterion exists to catch.
+
 ## Arithmetic
 
 Assumptions: about 142 scored dev tickets; v3 makes 2 calls a ticket (284 calls a run), v1 and v2
