@@ -1,7 +1,7 @@
 """Whole-dataset checks for the Ledgerly dataset (spec section 7).
 
 Record-level rules live on the models in `evals.dataset`; these are the rules that need every
-ticket at once: ids, the canary, one dataset version, and the mix targets.
+ticket at once: ids, meta, the canary, and the mix targets.
 """
 
 import re
@@ -30,10 +30,6 @@ def validate_dataset(dev: Sequence[TicketRecord], test: Sequence[TicketRecord]) 
     for ticket_id, n in sorted(Counter(r.id for r in everything).items()):
         if n > 1:
             problems.append(f"{ticket_id}: id used {n} times across dev and test")
-
-    versions = sorted({r.meta.dataset_version for r in everything if r.meta is not None})
-    if len(versions) > 1:
-        problems.append(f"more than one dataset_version: {', '.join(versions)}")
 
     for name, split, index in (("dev", dev, 0), ("test", test, 1)):
         counts = Counter(r.meta.slice for r in split if r.meta is not None)

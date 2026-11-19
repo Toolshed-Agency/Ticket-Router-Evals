@@ -43,9 +43,7 @@ def make(number: int, slice_: Slice, team: Team, language: Language, **meta: Any
                 "issues": ["a test issue"],
                 "language": language,
             },
-            "meta": {"slice": slice_, "drafted_by": "handwritten", "dataset_version": "1.0"}
-            | extra
-            | meta,
+            "meta": {"slice": slice_, "drafted_by": "handwritten"} | extra | meta,
             "canary": CANARY,
         }
     )
@@ -126,11 +124,3 @@ def test_language_totals_have_a_tolerance_of_three() -> None:
     problems = validate_dataset(dev, test)
     assert len(problems) == 1
     assert "en" in problems[0]
-
-
-def test_reports_more_than_one_dataset_version() -> None:
-    dev, test = dataset()
-    test[1] = relabel(test[1], meta__dataset_version="1.1")
-    problems = validate_dataset(dev, test)
-    assert len(problems) == 1
-    assert "1.1" in problems[0]

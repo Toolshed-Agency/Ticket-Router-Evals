@@ -7,7 +7,14 @@ from typing import Any
 import pytest
 from pydantic import ValidationError
 
-from evals.dataset import CANARY, DatasetError, Slice, TicketRecord, load_tickets
+from evals.dataset import (
+    CANARY,
+    DatasetError,
+    Slice,
+    TicketRecord,
+    load_tickets,
+    read_dataset_version,
+)
 from router.schema import Ticket
 
 
@@ -18,7 +25,7 @@ def record(**overrides: Any) -> dict[str, Any]:
         "input": {
             "channel": "chat",
             "subject": "invoices generate nahi ho rahi",
-            "body": "Month end hai aur kal se koi invoice generate nahi ho rahi.",
+            "body": "Kal se koi invoice generate nahi ho rahi, 'sync failed' aa raha hai.",
             "customer_tier": "pro",
             "prior_tickets_7d": 2,
         },
@@ -34,7 +41,6 @@ def record(**overrides: Any) -> dict[str, Any]:
             "attack_goal": None,
             "sensitive_strings": [],
             "drafted_by": "handwritten",
-            "dataset_version": "1.0",
         },
         "canary": CANARY,
     }
@@ -67,6 +73,27 @@ def test_meta_and_canary_are_optional_for_your_own_tickets() -> None:
     assert parsed.meta is None
 
 
+def test_your_own_tickets_get_format_checks_only() -> None:
+    # Spec section 6: --data files are checked for format and allowed values only. The P1 rule
+    # (P2-D10) is a rule of the Ledgerly dataset, so it applies only to records with meta.
+    own = with_gold(urgency="P1", escalate_to_human=False) | {"meta": None, "canary": None}
+    assert TicketRecord.model_validate(own).gold.urgency == "P1"
+
+
+def test_reads_the_dataset_version(tmp_path: Path) -> None:
+    path = tmp_path / "VERSION"
+    path.write_bytes("\ufeff1.1\r\n".encode())
+    assert read_dataset_version(path) == "1.1"
+
+
+@pytest.mark.parametrize("text", ["", "v1", "1", "1.0.0", "1.0\n1.1\n"])
+def test_rejects_a_malformed_dataset_version(tmp_path: Path, text: str) -> None:
+    path = tmp_path / "VERSION"
+    path.write_text(text, encoding="utf-8")
+    with pytest.raises(DatasetError, match="VERSION"):
+        read_dataset_version(path)
+
+
 @pytest.mark.parametrize(
     "bad",
     [
@@ -77,7 +104,7 @@ def test_meta_and_canary_are_optional_for_your_own_tickets() -> None:
         with_meta(slice="pii", sensitive_strings=["4111 1111 1111 1111"]),  # not in the text
         with_meta(slice="p1"),  # the p1 slice needs gold P1
         with_meta(slice="injection", attack_goal={}),  # an empty attack goal
-        with_meta(dataset_version="v1"),
+        with_meta(dataset_version="1.0"),  # the version lives in data/VERSION, not in records
         record(extra_field=1),  # unknown top-level field
         with_gold(escalate_to_humen=True),  # misspelled field inside gold
     ],
@@ -120,7 +147,7 @@ def test_loads_a_file_saved_by_excel_or_notepad(tmp_path: Path) -> None:
     # A byte-order mark, CRLF line endings and a blank last line (review focus 1).
     lines = [json.dumps(record(id=f"LDG-000{i}"), ensure_ascii=False) for i in (1, 2)]
     path = tmp_path / "tickets.jsonl"
-    path.write_bytes(("﻿" + "\r\n".join(lines) + "\r\n\r\n").encode("utf-8"))
+    path.write_bytes(("\ufeff" + "\r\n".join(lines) + "\r\n\r\n").encode("utf-8"))
     assert [r.id for r in load_tickets(path)] == ["LDG-0001", "LDG-0002"]
 
 
