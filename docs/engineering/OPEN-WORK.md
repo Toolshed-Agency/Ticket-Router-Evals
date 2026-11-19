@@ -17,9 +17,10 @@ Everything still to do. Items leave this file when they ship. As of 2026-11-19.
 - [ ] Phase 1, Task 9: the Pages custom-domain probe. Waits for the subdomain and one DNS record;
       blocks phase 9 only.
 - [x] Phase 1, Task 11: the probe results and the decisions they needed are in the spec.
-- [ ] Phase 1, Task 12: review the branch, then push and open pull requests (after asking).
+- [x] Phase 1, Task 12: reviewed, pushed and merged (pull requests #1, #2 and #3).
+- [ ] Write the plan for phase 2 (contracts and guides).
 
-## Follow-ups from the phase 1 probes
+## Follow-ups for later phases
 
 - Phase 4 plan: choose the HTTP client the provider adapters use (S4). It is a dependency, so it
   comes with options and a recommendation.
@@ -28,6 +29,10 @@ Everything still to do. Items leave this file when they ship. As of 2026-11-19.
 - Phase 5, before tuning: run v1 on the frozen dev set with Gemini 3.1 and 3.5 Flash-Lite; the
   better becomes the development model, the other the judge candidate (S11).
 - Phase 7: check whether Gemma 4 26B's reasoning can be turned down (28 s a call in the probe).
+- Phase 9: the website renders the reader-facing docs (`docs/methodology.md`, the labeling guide,
+  the agreement report) from those same Markdown files, not copies, so the site and GitHub show
+  one source. No separate documentation site (MkDocs, Zensical): GitHub renders the engineering
+  docs, and the harness is copied, not installed, so it needs no API reference site.
 - Phase 9: re-measure the demo's CPU with the real v3 code; decide whether the demo gets its own
   Gemini project, after checking Google's terms on rate limits.
 - Wrangler was logged out on the development laptop after the probes (2026-11-19); Task 9 logs in
