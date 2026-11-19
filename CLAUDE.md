@@ -12,9 +12,10 @@ result visible.
 traceable to a committed results file. Credibility is the product. A number that is fudged, typed
 in by hand or cannot be reproduced destroys it.
 
-Status as of 2026-11-19: phase 1 (foundation and probes) on `phase-1/foundation`. The project, its
-checks and CI are built; four of the five probes are done (the Pages domain probe waits for the
-subdomain and a DNS record). The design spec is approved and updated with the probe results:
+Status as of 2026-11-19: phase 1 (foundation and probes) is merged. The project, its checks and CI
+are built; four of the five probes are done (the Pages domain probe waits for the subdomain and a
+DNS record). Phase 2 (contracts and guides) is next. The design spec is approved and updated with
+the probe results:
 [docs/engineering/specs/2026-11-17-ticket-router-evals-design.md](docs/engineering/specs/2026-11-17-ticket-router-evals-design.md).
 Phase 1 plan: [docs/engineering/plans/2026-11-18-phase-1-foundation.md](docs/engineering/plans/2026-11-18-phase-1-foundation.md).
 See also [docs/engineering/OPEN-WORK.md](docs/engineering/OPEN-WORK.md).
@@ -62,6 +63,12 @@ phase. Superpowers' "rulings, not stalls" covers shaped and trivial decisions on
 **Branches and commits.** Each phase works on its own branch, with a commit per task. The review
 gate is the pull request into `main`. Never commit to `main` directly. Never push or open a pull
 request without asking: pushing publishes.
+
+**One pull request at a time.** Branch from an up-to-date `main`, finish, open the pull request,
+merge it, and only then start the next branch. A fix between phases gets its own short pull
+request first. Stacked branches made GitHub show earlier pull requests' commits again (phase 1,
+2026-11-19). Merge with "Create a merge commit", never squash or rebase: results files record the
+commit they ran on, and squash or rebase would leave those commits off `main`.
 
 **Branch names.** Phase work: `phase-<n>/<name>` (for example `phase-1/foundation`), matching its
 plan in `docs/engineering/plans/`. Anything else: a Conventional Commits type and a short name
