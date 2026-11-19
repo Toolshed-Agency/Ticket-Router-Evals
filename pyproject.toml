@@ -6,7 +6,9 @@ readme = "README.md"
 requires-python = ">=3.14"
 license = "MIT"
 license-files = ["LICENSE"]
-dependencies = []
+dependencies = [
+    "pydantic>=2.14.3,<3",
+]
 
 [build-system]
 requires = ["uv_build>=0.13.9,<0.14"]
@@ -47,6 +49,7 @@ select = ["E", "W", "F", "I", "B", "UP", "SIM", "RUF", "PT", "S"]
 [tool.mypy]
 strict = true
 python_version = "3.14"
+plugins = ["pydantic.mypy"]
 files = ["harness", "router", "evals", "tests"]
 
 [tool.pytest.ini_options]

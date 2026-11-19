@@ -14,18 +14,21 @@ in by hand or cannot be reproduced destroys it.
 
 Status as of 2026-11-19: phase 1 (foundation and probes) is merged. The project, its checks and CI
 are built; four of the five probes are done (the Pages domain probe waits for the subdomain and a
-DNS record). Phase 2 (contracts and guides) is next. The design spec is approved and updated with
-the probe results:
+DNS record). Phase 2 (contracts and guides) is built on `phase-2/contracts`: the contracts, the
+policy, the labelling guide, the scenario list and the rubric draft, in final review. The
+design spec is approved and updated with the probe results and the phase 2 contracts:
 [docs/engineering/specs/2026-11-17-ticket-router-evals-design.md](docs/engineering/specs/2026-11-17-ticket-router-evals-design.md).
 Phase 1 plan: [docs/engineering/plans/2026-11-18-phase-1-foundation.md](docs/engineering/plans/2026-11-18-phase-1-foundation.md).
+Phase 2 plan: [docs/engineering/plans/2026-11-19-phase-2-contracts.md](docs/engineering/plans/2026-11-19-phase-2-contracts.md).
 See also [docs/engineering/OPEN-WORK.md](docs/engineering/OPEN-WORK.md).
 
 ## Non-negotiables
 
 - **This repo is public, history included.** No real customer data, no secrets, no internal notes.
-  API keys live only in `.env` (gitignored) and GitHub secrets.
-- **Tune on the dev set only.** The test set runs once per final router version and is reported
-  separately.
+  API keys live only in `.env` (gitignored), GitHub secrets and the demo Worker's Cloudflare
+  secrets.
+- **Tune on the dev set only.** The test set runs once per final router version per model and is
+  reported separately.
 - **Publish the real numbers**, unflattering ones included, with the explanation.
 - **The site shows only numbers read from `results/`.** Nothing is typed in by hand.
 - **Ledgerly resembles no real company.** Names, emails, phone numbers and account ids are
@@ -132,3 +135,4 @@ Add each one here when it exists. All run from the repo root; uv installs Python
 | `uv run ruff check .` | Lints |
 | `uv run mypy` | Type checks in strict mode |
 | `uv run pytest` | Runs the tests |
+| `uv run python -m evals.export_schemas` | Rewrites the published JSON Schemas in `docs/schemas/` after a contract changes |

@@ -1,0 +1,573 @@
+{
+  "$defs": {
+    "Aggregate": {
+      "additionalProperties": false,
+      "description": "One metric for one group: \"overall\", \"slice:<name>\" or \"language:<code>\". The interval\nhas both ends or neither; it needs a value, and then `ci_low <= value <= ci_high`.",
+      "properties": {
+        "ci_high": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Ci High"
+        },
+        "ci_low": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Ci Low"
+        },
+        "group": {
+          "pattern": "^(overall|slice:[a-z0-9_]+|language:[a-z0-9_]+)$",
+          "title": "Group",
+          "type": "string"
+        },
+        "metric": {
+          "minLength": 1,
+          "pattern": "\\S",
+          "title": "Metric",
+          "type": "string"
+        },
+        "n": {
+          "minimum": 0,
+          "title": "N",
+          "type": "integer"
+        },
+        "value": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Value"
+        }
+      },
+      "required": [
+        "metric",
+        "group",
+        "value",
+        "n",
+        "ci_low",
+        "ci_high"
+      ],
+      "title": "Aggregate",
+      "type": "object"
+    },
+    "JsonValue": {},
+    "PriceEntry": {
+      "additionalProperties": false,
+      "description": "One line of the dated price table a run's costs were computed from.",
+      "properties": {
+        "as_of": {
+          "format": "date",
+          "title": "As Of",
+          "type": "string"
+        },
+        "input_usd_per_million": {
+          "minimum": 0,
+          "title": "Input Usd Per Million",
+          "type": "number"
+        },
+        "model": {
+          "minLength": 1,
+          "pattern": "\\S",
+          "title": "Model",
+          "type": "string"
+        },
+        "output_usd_per_million": {
+          "minimum": 0,
+          "title": "Output Usd Per Million",
+          "type": "number"
+        },
+        "provider": {
+          "minLength": 1,
+          "pattern": "\\S",
+          "title": "Provider",
+          "type": "string"
+        },
+        "source_url": {
+          "format": "uri",
+          "maxLength": 2083,
+          "minLength": 1,
+          "title": "Source Url",
+          "type": "string"
+        }
+      },
+      "required": [
+        "provider",
+        "model",
+        "input_usd_per_million",
+        "output_usd_per_million",
+        "as_of",
+        "source_url"
+      ],
+      "title": "PriceEntry",
+      "type": "object"
+    },
+    "Provenance": {
+      "additionalProperties": false,
+      "description": "Everything needed to say exactly what was run. `dataset_version` is set exactly when\n`split` is `dev` or `test`; it is null for a run on your own ticket file.",
+      "properties": {
+        "dataset_sha256": {
+          "pattern": "^[0-9a-f]{64}$",
+          "title": "Dataset Sha256",
+          "type": "string"
+        },
+        "dataset_version": {
+          "anyOf": [
+            {
+              "pattern": "^[0-9]+\\.[0-9]+$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Dataset Version"
+        },
+        "git_commit": {
+          "pattern": "^[0-9a-f]{40}$",
+          "title": "Git Commit",
+          "type": "string"
+        },
+        "judge_model": {
+          "anyOf": [
+            {
+              "minLength": 1,
+              "pattern": "\\S",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Judge Model"
+        },
+        "model": {
+          "minLength": 1,
+          "pattern": "\\S",
+          "title": "Model",
+          "type": "string"
+        },
+        "prices": {
+          "items": {
+            "$ref": "#/$defs/PriceEntry"
+          },
+          "title": "Prices",
+          "type": "array"
+        },
+        "prompt_sha256": {
+          "anyOf": [
+            {
+              "pattern": "^[0-9a-f]{64}$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Prompt Sha256"
+        },
+        "provider": {
+          "minLength": 1,
+          "pattern": "\\S",
+          "title": "Provider",
+          "type": "string"
+        },
+        "request_settings": {
+          "additionalProperties": {
+            "$ref": "#/$defs/JsonValue"
+          },
+          "title": "Request Settings",
+          "type": "object"
+        },
+        "router": {
+          "minLength": 1,
+          "pattern": "\\S",
+          "title": "Router",
+          "type": "string"
+        },
+        "rubric_sha256": {
+          "anyOf": [
+            {
+              "pattern": "^[0-9a-f]{64}$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Rubric Sha256"
+        },
+        "split": {
+          "minLength": 1,
+          "pattern": "\\S",
+          "title": "Split",
+          "type": "string"
+        },
+        "switches_off": {
+          "items": {
+            "minLength": 1,
+            "pattern": "\\S",
+            "type": "string"
+          },
+          "title": "Switches Off",
+          "type": "array"
+        }
+      },
+      "required": [
+        "git_commit",
+        "dataset_version",
+        "dataset_sha256",
+        "split",
+        "router",
+        "switches_off",
+        "prompt_sha256",
+        "model",
+        "provider",
+        "request_settings",
+        "judge_model",
+        "rubric_sha256",
+        "prices"
+      ],
+      "title": "Provenance",
+      "type": "object"
+    },
+    "Repeat": {
+      "additionalProperties": false,
+      "description": "One extra run of a ticket (`--repeat`), used only by the consistency metric; cost, latency\nand schema validity use the first run. Exactly one of\n`output` (valid) and `raw_text` (invalid, kept exactly as received) is set.",
+      "properties": {
+        "output": {
+          "anyOf": [
+            {
+              "additionalProperties": {
+                "$ref": "#/$defs/JsonValue"
+              },
+              "type": "object"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Output"
+        },
+        "raw_text": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Raw Text"
+        }
+      },
+      "required": [
+        "output",
+        "raw_text"
+      ],
+      "title": "Repeat",
+      "type": "object"
+    },
+    "TicketResult": {
+      "additionalProperties": false,
+      "description": "One ticket's outcome. Exactly one of `output` (valid) and `raw_text` (invalid, kept\nexactly as received) is set; an invalid output is never `valid_first_try` and never\n`passed`. `coverage` holds one mark per gold issue, in order, on tickets with 2 or more\ngold issues. Each verdict's criterion appears once. The judge fields are null when the\nticket was not judged.",
+      "properties": {
+        "cached": {
+          "title": "Cached",
+          "type": "boolean"
+        },
+        "cost_usd": {
+          "anyOf": [
+            {
+              "minimum": 0,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Cost Usd"
+        },
+        "coverage": {
+          "anyOf": [
+            {
+              "items": {
+                "type": "boolean"
+              },
+              "minItems": 1,
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Coverage"
+        },
+        "input_tokens": {
+          "anyOf": [
+            {
+              "minimum": 0,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Input Tokens"
+        },
+        "judge_cost_usd": {
+          "anyOf": [
+            {
+              "minimum": 0,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Judge Cost Usd"
+        },
+        "judge_input_tokens": {
+          "anyOf": [
+            {
+              "minimum": 0,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Judge Input Tokens"
+        },
+        "judge_output_tokens": {
+          "anyOf": [
+            {
+              "minimum": 0,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Judge Output Tokens"
+        },
+        "latency_ms": {
+          "minimum": 0,
+          "title": "Latency Ms",
+          "type": "number"
+        },
+        "output": {
+          "anyOf": [
+            {
+              "additionalProperties": {
+                "$ref": "#/$defs/JsonValue"
+              },
+              "type": "object"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Output"
+        },
+        "output_tokens": {
+          "anyOf": [
+            {
+              "minimum": 0,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Output Tokens"
+        },
+        "passed": {
+          "title": "Passed",
+          "type": "boolean"
+        },
+        "pii_leak": {
+          "anyOf": [
+            {
+              "type": "boolean"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Pii Leak"
+        },
+        "raw_text": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Raw Text"
+        },
+        "repeats": {
+          "items": {
+            "$ref": "#/$defs/Repeat"
+          },
+          "title": "Repeats",
+          "type": "array"
+        },
+        "ticket_id": {
+          "minLength": 1,
+          "pattern": "\\S",
+          "title": "Ticket Id",
+          "type": "string"
+        },
+        "valid_first_try": {
+          "title": "Valid First Try",
+          "type": "boolean"
+        },
+        "verdicts": {
+          "items": {
+            "$ref": "#/$defs/Verdict"
+          },
+          "title": "Verdicts",
+          "type": "array"
+        }
+      },
+      "required": [
+        "ticket_id",
+        "output",
+        "raw_text",
+        "valid_first_try",
+        "latency_ms",
+        "input_tokens",
+        "output_tokens",
+        "cost_usd",
+        "cached",
+        "verdicts",
+        "judge_input_tokens",
+        "judge_output_tokens",
+        "judge_cost_usd",
+        "pii_leak",
+        "coverage",
+        "passed",
+        "repeats"
+      ],
+      "title": "TicketResult",
+      "type": "object"
+    },
+    "Verdict": {
+      "additionalProperties": false,
+      "description": "The judge's pass or fail on one criterion, with a one-line reason (spec D6).",
+      "properties": {
+        "criterion": {
+          "minLength": 1,
+          "pattern": "\\S",
+          "title": "Criterion",
+          "type": "string"
+        },
+        "passed": {
+          "title": "Passed",
+          "type": "boolean"
+        },
+        "reason": {
+          "minLength": 1,
+          "pattern": "\\S",
+          "title": "Reason",
+          "type": "string"
+        }
+      },
+      "required": [
+        "criterion",
+        "passed",
+        "reason"
+      ],
+      "title": "Verdict",
+      "type": "object"
+    }
+  },
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "description": "One run. `ci_run_url` is set exactly when `source` is `ci`. Each ticket appears once.\nIf any ticket was judged, the provenance names the judge model and the rubric hash.",
+  "properties": {
+    "aggregates": {
+      "items": {
+        "$ref": "#/$defs/Aggregate"
+      },
+      "title": "Aggregates",
+      "type": "array"
+    },
+    "ci_run_url": {
+      "anyOf": [
+        {
+          "format": "uri",
+          "maxLength": 2083,
+          "minLength": 1,
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "title": "Ci Run Url"
+    },
+    "created_at": {
+      "format": "date-time",
+      "title": "Created At",
+      "type": "string"
+    },
+    "format_version": {
+      "const": "1.0",
+      "title": "Format Version",
+      "type": "string"
+    },
+    "provenance": {
+      "$ref": "#/$defs/Provenance"
+    },
+    "run_id": {
+      "pattern": "^[a-z0-9-]+$",
+      "title": "Run Id",
+      "type": "string"
+    },
+    "source": {
+      "enum": [
+        "ci",
+        "local"
+      ],
+      "title": "Source",
+      "type": "string"
+    },
+    "tickets": {
+      "items": {
+        "$ref": "#/$defs/TicketResult"
+      },
+      "title": "Tickets",
+      "type": "array"
+    }
+  },
+  "required": [
+    "format_version",
+    "run_id",
+    "created_at",
+    "source",
+    "ci_run_url",
+    "provenance",
+    "tickets",
+    "aggregates"
+  ],
+  "title": "ResultsFile",
+  "type": "object"
+}
