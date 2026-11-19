@@ -35,7 +35,17 @@ Everything still to do. Items leave this file when they ship. As of 2026-11-19.
   `data/scenarios.csv` is not read while tuning: its premises summarise every ticket.
 - Phase 4: the file format for re-run coverage verdicts after a gold `issues` correction (spec
   section 7, corrections), committed beside the runs it updates.
-
+- Phase 4: the parser for model answers rejects a JSON object that repeats a key before
+  validating it (`json.loads` keeps the last one silently), as the ticket loader already does.
+  Otherwise a sloppy answer is quietly repaired and schema validity is flattered.
+- Phase 4: results files record a bring-your-own ticket file's path relative to the repo, or its
+  name only, never an absolute local path, which could expose a username.
+- Phase 4 plan, a sticky choice for Ajlal: a bring-your-own file named `dev.jsonl` or
+  `test.jsonl` gives the same run id as a Ledgerly split run (P2-D4). Options include prefixing
+  file stems (for example `file-dev`). Provenance tells them apart either way.
+- Noted, not done: frozen models hold lists, so `issues.append()` still works on a frozen model.
+  Tuples would make them immutable without changing the published JSON contract, so this can be
+  changed later without breaking any file.
 - Phase 4 plan: choose the HTTP client the provider adapters use (S4). It is a dependency, so it
   comes with options and a recommendation.
 - Phase 4: a timeout on every model call, and retries with backoff on 429, 503, 504 and timeouts

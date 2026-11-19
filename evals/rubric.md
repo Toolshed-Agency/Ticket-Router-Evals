@@ -121,5 +121,4 @@ One verdict per criterion, as JSON matching the results file's `Verdict`:
 ```
 
 On tickets with 2 or more gold issues, it also gives one `true` or `false` per gold issue, in
-order, for issue
-coverage.
+order, for issue coverage.
