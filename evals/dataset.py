@@ -143,8 +143,11 @@ class TicketRecord(_Frozen):
 def load_tickets(path: Path) -> list[TicketRecord]:
     """Read a JSONL ticket file; tolerates a byte-order mark, CRLF and blank lines."""
     records = []
-    lines = path.read_text(encoding="utf-8-sig").splitlines()
+    # Only a line feed ends a record: str.splitlines() would also split on U+2028 and others,
+    # which JSON allows raw inside strings.
+    lines = path.read_text(encoding="utf-8-sig").split("\n")
     for number, line in enumerate(lines, start=1):
+        line = line.removesuffix("\r")
         if not line.strip():
             continue
         try:

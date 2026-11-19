@@ -124,6 +124,18 @@ def test_loads_a_file_saved_by_excel_or_notepad(tmp_path: Path) -> None:
     assert [r.id for r in load_tickets(path)] == ["LDG-0001", "LDG-0002"]
 
 
+@pytest.mark.parametrize("separator", ["\u2028", "\u2029", "\x85"])
+def test_a_line_separator_inside_a_string_stays_in_the_ticket(
+    tmp_path: Path, separator: str
+) -> None:
+    # JSON allows these raw inside strings; only a line feed ends a record.
+    r = record()
+    r["input"] = r["input"] | {"body": f"First line{separator}second line"}
+    path = tmp_path / "tickets.jsonl"
+    path.write_text(json.dumps(r, ensure_ascii=False) + "\n", encoding="utf-8")
+    assert load_tickets(path)[0].input.body == f"First line{separator}second line"
+
+
 def test_loader_names_the_bad_line(tmp_path: Path) -> None:
     good = json.dumps(record())
     path = tmp_path / "tickets.jsonl"
