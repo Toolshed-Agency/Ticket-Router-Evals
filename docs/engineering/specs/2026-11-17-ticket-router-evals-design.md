@@ -221,7 +221,8 @@ is a breaking change (see CLAUDE.md, Commit messages).
 
 ```python
 class Router[TicketT, OutputT](Protocol):       # harness/contracts.py: knows nothing of Ledgerly
-    name: str
+    @property
+    def name(self) -> str: ...                   # read-only: an attribute or a property fits
     def predict(self, ticket: TicketT) -> OutputT: ...
 
 type LedgerlyRouter = Router[Ticket, RouterOutput]   # router/schema.py

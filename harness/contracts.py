@@ -10,7 +10,10 @@ from typing import Protocol
 class Router[TicketT, OutputT](Protocol):
     """Anything with a name that turns one ticket into one output."""
 
-    name: str
+    @property
+    def name(self) -> str:
+        """Read-only, so a class attribute, a frozen dataclass field or a property all fit."""
+        ...
 
     def predict(self, ticket: TicketT) -> OutputT:
         """Route one ticket. Raise `InvalidOutput` when no valid output can be produced."""
