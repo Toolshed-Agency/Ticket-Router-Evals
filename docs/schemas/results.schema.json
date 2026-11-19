@@ -2,7 +2,7 @@
   "$defs": {
     "Aggregate": {
       "additionalProperties": false,
-      "description": "One metric for one group: \"overall\", \"slice:<name>\" or \"language:<code>\". When the value\nand both interval ends are set, `ci_low <= value <= ci_high`.",
+      "description": "One metric for one group: \"overall\", \"slice:<name>\" or \"language:<code>\". The interval\nhas both ends or neither; it needs a value, and then `ci_low <= value <= ci_high`.",
       "properties": {
         "ci_high": {
           "anyOf": [
@@ -27,8 +27,7 @@
           "title": "Ci Low"
         },
         "group": {
-          "minLength": 1,
-          "pattern": "\\S",
+          "pattern": "^(overall|slice:[a-z0-9_]+|language:[a-z0-9_]+)$",
           "title": "Group",
           "type": "string"
         },
@@ -119,7 +118,7 @@
     },
     "Provenance": {
       "additionalProperties": false,
-      "description": "Everything needed to say exactly what was run. `dataset_version` is null for a run on\nyour own ticket file.",
+      "description": "Everything needed to say exactly what was run. `dataset_version` is set exactly when\n`split` is `dev` or `test`; it is null for a run on your own ticket file.",
       "properties": {
         "dataset_sha256": {
           "pattern": "^[0-9a-f]{64}$",
@@ -129,7 +128,7 @@
         "dataset_version": {
           "anyOf": [
             {
-              "pattern": "^\\d+\\.\\d+$",
+              "pattern": "^[0-9]+\\.[0-9]+$",
               "type": "string"
             },
             {
@@ -285,7 +284,7 @@
     },
     "TicketResult": {
       "additionalProperties": false,
-      "description": "One ticket's outcome. Exactly one of `output` (valid) and `raw_text` (invalid, kept\nexactly as received) is set. `coverage` holds one mark per gold issue, in order, on\ntickets with 2 or more gold issues; the judge fields are null when the ticket was not\njudged.",
+      "description": "One ticket's outcome. Exactly one of `output` (valid) and `raw_text` (invalid, kept\nexactly as received) is set; an invalid output is never `valid_first_try` and never\n`passed`. `coverage` holds one mark per gold issue, in order, on tickets with 2 or more\ngold issues. Each verdict's criterion appears once. The judge fields are null when the\nticket was not judged.",
       "properties": {
         "cached": {
           "title": "Cached",
@@ -501,7 +500,7 @@
     }
   },
   "additionalProperties": false,
-  "description": "One run. `ci_run_url` is set exactly when `source` is `ci`.",
+  "description": "One run. `ci_run_url` is set exactly when `source` is `ci`. Each ticket appears once.\nIf any ticket was judged, the provenance names the judge model and the rubric hash.",
   "properties": {
     "aggregates": {
       "items": {

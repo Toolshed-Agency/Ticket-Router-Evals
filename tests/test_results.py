@@ -1,5 +1,6 @@
 """The results file format and run id (spec section 6; plan P2-D4)."""
 
+import json
 from datetime import UTC, datetime, timedelta, timezone
 from typing import Any
 
@@ -35,6 +36,22 @@ def test_run_id_slugifies_models_and_paths() -> None:
 def test_run_id_converts_to_utc() -> None:
     karachi = AT.astimezone(timezone(timedelta(hours=5)))
     assert make_run_id(karachi, "v1", [], "m", "test", 1).startswith("20261203t101500z-")
+
+
+@pytest.mark.parametrize(
+    ("router", "model", "split", "repeat"),
+    [
+        ("", "m", "dev", 1),
+        ("v3", "///", "dev", 1),
+        ("v3", "m", "data/---.jsonl", 1),
+        ("v3", "m", "dev", True),
+    ],
+)
+def test_run_id_rejects_an_empty_part_or_a_boolean_repeat(
+    router: str, model: str, split: str, repeat: int
+) -> None:
+    with pytest.raises(ValueError, match=r"slugifying|whole number"):
+        make_run_id(AT, router, [], model, split, repeat)
 
 
 def test_run_id_needs_an_aware_time() -> None:
@@ -88,8 +105,8 @@ def results(**overrides: Any) -> dict[str, Any]:
             "model": "gemini-3.5-flash-lite",
             "provider": "google",
             "request_settings": {"temperature": 0},
-            "judge_model": None,
-            "rubric_sha256": None,
+            "judge_model": "gemini-3.1-flash-lite",
+            "rubric_sha256": "d" * 64,
             "prices": [
                 {
                     "provider": "google",
@@ -116,9 +133,32 @@ def results(**overrides: Any) -> dict[str, Any]:
     return base | overrides
 
 
+def aggregate(**overrides: Any) -> dict[str, Any]:
+    base = {"metric": "x", "group": "overall", "value": 0.4, "n": 5, "ci_low": 0.2, "ci_high": 0.6}
+    return base | overrides
+
+
 def test_a_full_results_file_round_trips() -> None:
     parsed = ResultsFile.model_validate(results())
     assert ResultsFile.model_validate_json(parsed.model_dump_json()) == parsed
+
+
+def test_a_whole_number_is_a_valid_float() -> None:
+    # JSON writers often write 0.0 as 0; strict floats still accept integers.
+    parsed = ResultsFile.model_validate_json(json.dumps(results(tickets=[ticket(cost_usd=0)])))
+    assert parsed.tickets[0].cost_usd == 0
+
+
+def test_an_aggregate_without_a_value_has_no_interval() -> None:
+    parsed = ResultsFile.model_validate(
+        results(aggregates=[aggregate(value=None, ci_low=None, ci_high=None, n=0)])
+    )
+    assert parsed.aggregates[0].value is None
+
+
+@pytest.mark.parametrize("group", ["overall", "slice:p1", "language:roman_ur"])
+def test_aggregate_groups(group: str) -> None:
+    assert ResultsFile.model_validate(results(aggregates=[aggregate(group=group)]))
 
 
 @pytest.mark.parametrize(
@@ -154,6 +194,35 @@ def test_a_full_results_file_round_trips() -> None:
                 }
             ]
         ),
+        # An invalid output is wrong on every field (spec section 8): never valid, never passed.
+        results(tickets=[ticket(output=None, raw_text="x", valid_first_try=True, passed=False)]),
+        results(tickets=[ticket(output=None, raw_text="x", valid_first_try=False, passed=True)]),
+        results(tickets=[ticket(), ticket()]),  # the same ticket twice would count twice
+        results(tickets=[ticket(latency_ms=float("nan"))]),  # numbers must be real numbers
+        results(tickets=[ticket(cost_usd=float("inf"))]),
+        results(tickets=[ticket(cost_usd="0.5")]),  # floats are strict, like the schema
+        results(tickets=[ticket(latency_ms=True)]),
+        results(
+            tickets=[
+                ticket(
+                    verdicts=[
+                        {"criterion": "follows_policy", "passed": True, "reason": "Matches."},
+                        {"criterion": "follows_policy", "passed": False, "reason": "Twice."},
+                    ]
+                )
+            ]
+        ),
+        results(aggregates=[aggregate(value=None, ci_low=0.9, ci_high=0.1)]),
+        results(aggregates=[aggregate(ci_low=0.6, ci_high=0.2)]),
+        results(aggregates=[aggregate(ci_high=None)]),  # both ends or neither
+        results(aggregates=[aggregate(value=None)]),  # no value, no interval
+        results(aggregates=[aggregate(value=float("nan"))]),
+        results(aggregates=[aggregate(group="everything")]),
+        with_provenance(split="dev", dataset_version=None),  # a split has a dataset version
+        with_provenance(split="my.jsonl", dataset_version="1.0"),  # your own file has none
+        with_provenance(dataset_version="\u0661.\u0660"),  # digits are ASCII
+        with_provenance(judge_model=None),  # judged tickets name their judge
+        with_provenance(rubric_sha256=None),
         results(format_version="2.0"),
         results(run_id="Has Spaces"),
         results(created_at="2026-12-03T10:15:00"),  # no timezone
@@ -166,7 +235,9 @@ def test_invalid_results_file(bad: dict[str, Any]) -> None:
 
 def test_an_invalid_output_keeps_its_raw_text() -> None:
     parsed = ResultsFile.model_validate(
-        results(tickets=[ticket(output=None, raw_text="not json", valid_first_try=False)])
+        results(
+            tickets=[ticket(output=None, raw_text="not json", valid_first_try=False, passed=False)]
+        )
     )
     assert parsed.tickets[0].raw_text == "not json"
 
@@ -174,7 +245,7 @@ def test_an_invalid_output_keeps_its_raw_text() -> None:
 def test_raw_text_is_kept_exactly() -> None:
     # Unlike names and reasons, a model's raw answer is evidence: never stripped.
     parsed = ResultsFile.model_validate(
-        results(tickets=[ticket(output=None, raw_text="  \n", valid_first_try=False)])
+        results(tickets=[ticket(output=None, raw_text="  \n", valid_first_try=False, passed=False)])
     )
     assert parsed.tickets[0].raw_text == "  \n"
 
