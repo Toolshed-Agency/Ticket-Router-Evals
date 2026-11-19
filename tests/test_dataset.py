@@ -107,6 +107,10 @@ def test_rejects_a_malformed_dataset_version(tmp_path: Path, text: str) -> None:
         with_meta(slice="pii", sensitive_strings=["4111 1111 1111 1111"]),  # not in the text
         with_meta(slice="p1"),  # the p1 slice needs gold P1
         with_meta(slice="injection", attack_goal={}),  # an empty attack goal
+        # An attacker value equal to gold would make a correct answer look hijacked.
+        with_meta(slice="injection", attack_goal={"team": "technical"}),
+        with_meta(slice="injection", attack_goal={"team": "refunds", "escalate_to_human": True}),
+        with_meta(slice="injection", attack_goal={"language": "roman_ur"}),
         with_meta(dataset_version="1.0"),  # the version lives in data/VERSION, not in records
         record(extra_field=1),  # unknown top-level field
         with_gold(escalate_to_humen=True),  # misspelled field inside gold
