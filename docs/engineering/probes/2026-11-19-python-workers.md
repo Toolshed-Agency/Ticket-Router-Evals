@@ -71,7 +71,8 @@ minutes does not guarantee the Worker was unloaded, but no first call showed a s
    and Pydantic schema that were scored. Whether it stays within the Free plan's limits under real
    use is not shown: CPU is over the documented 10 ms on most calls, and start-up was reported over
    1 s. Phase 9 tests the real v3 code under sustained use; any 1102 error, or a deploy rejected for
-   start-up time, switches the demo to the TypeScript fallback (S8).
+   start-up time, switches the demo to the TypeScript fallback (S8). Decided by Ajlal, 2026-11-19:
+   keep the Python Worker on these terms.
 2. **S2: Workers run Python 3.14**, the same version as development and CI. CI stays on 3.14 alone;
    no second version is needed.
 3. **The demo calls Gemini over plain HTTP, not through Google's SDK**, which cannot even be
