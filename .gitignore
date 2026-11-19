@@ -225,3 +225,5 @@ __marimo__/
 python_modules/
 .venv-workers/
 .wrangler/
+# wrangler dev keeps a Worker's local secrets here
+.dev.vars*

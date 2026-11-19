@@ -14,7 +14,10 @@ def git(*args: str) -> subprocess.CompletedProcess[str]:
     return subprocess.run(["git", *args], cwd=REPO_ROOT, capture_output=True, text=True)
 
 
-@pytest.mark.parametrize("name", [".env", ".env.local", ".env.production"])
+# .dev.vars is where `wrangler dev` keeps a Worker's local secrets (the demo, phase 9).
+@pytest.mark.parametrize(
+    "name", [".env", ".env.local", ".env.production", ".dev.vars", ".dev.vars.production"]
+)
 def test_env_files_are_ignored(name: str) -> None:
     assert git("check-ignore", "-q", name).returncode == 0
 
@@ -31,5 +34,14 @@ def test_env_example_holds_names_only() -> None:
 
 
 def test_no_env_file_is_tracked() -> None:
-    names = {Path(p).name for p in git("ls-files").stdout.splitlines()} - {".env.example"}
-    assert {n for n in names if n.startswith(".env") or n.endswith(".env")} == set()
+    listed = git("ls-files")
+    # A failed or empty listing would make the check below pass with nothing checked.
+    assert listed.returncode == 0, listed.stderr
+    names = {Path(p).name for p in listed.stdout.splitlines()}
+    assert names, "git ls-files listed nothing"
+    secret_files = {
+        n
+        for n in names - {".env.example"}
+        if n.startswith((".env", ".dev.vars")) or n.endswith(".env")
+    }
+    assert secret_files == set()
