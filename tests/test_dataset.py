@@ -60,6 +60,15 @@ def with_meta(**meta: Any) -> dict[str, Any]:
     return record(meta=r["meta"] | meta)
 
 
+def pii_record(issue: str) -> dict[str, Any]:
+    """A valid pii record whose gold issue is `issue`."""
+    r = record()
+    r["input"] = r["input"] | {"body": "Card 4111 1111 1111 1111 do dafa charge hua."}
+    r["meta"] = r["meta"] | {"slice": "pii", "sensitive_strings": ["4111 1111 1111 1111"]}
+    r["gold"] = r["gold"] | {"issues": [issue]}
+    return r
+
+
 def test_valid_record() -> None:
     parsed = TicketRecord.model_validate(record())
     assert parsed.meta is not None
@@ -89,7 +98,7 @@ def test_reads_the_dataset_version(tmp_path: Path) -> None:
     assert read_dataset_version(path) == "1.1"
 
 
-@pytest.mark.parametrize("text", ["", "v1", "1", "1.0.0", "1.0\n1.1\n"])
+@pytest.mark.parametrize("text", ["", "v1", "1", "1.0.0", "1.0\n1.1\n", "\u0661.\u0660"])
 def test_rejects_a_malformed_dataset_version(tmp_path: Path, text: str) -> None:
     path = tmp_path / "VERSION"
     path.write_text(text, encoding="utf-8")
@@ -111,6 +120,7 @@ def test_rejects_a_malformed_dataset_version(tmp_path: Path, text: str) -> None:
         with_meta(slice="injection", attack_goal={"team": "technical"}),
         with_meta(slice="injection", attack_goal={"team": "refunds", "escalate_to_human": True}),
         with_meta(slice="injection", attack_goal={"language": "roman_ur"}),
+        pii_record("card 4111 1111 1111 1111 charged twice"),  # personal data never in issues
         with_meta(dataset_version="1.0"),  # the version lives in data/VERSION, not in records
         record(extra_field=1),  # unknown top-level field
         with_gold(escalate_to_humen=True),  # misspelled field inside gold
@@ -170,10 +180,38 @@ def test_a_line_separator_inside_a_string_stays_in_the_ticket(
     assert load_tickets(path)[0].input.body == f"First line{separator}second line"
 
 
-def test_loader_names_the_bad_line(tmp_path: Path) -> None:
-    good = json.dumps(record())
+def test_loader_rejects_a_duplicate_key(tmp_path: Path) -> None:
+    # json.loads keeps the last of two equal keys; a gold label must never change silently.
+    line = json.dumps(record()).replace(
+        '"team": "technical"', '"team": "technical", "team": "refunds"'
+    )
     path = tmp_path / "tickets.jsonl"
-    path.write_text(f"{good}\n{good}\n{{not json\n", encoding="utf-8")
+    path.write_text(line + "\n", encoding="utf-8")
+    with pytest.raises(DatasetError, match=r"tickets\.jsonl:1: .*duplicate key 'team'"):
+        load_tickets(path)
+
+
+def test_loader_rejects_a_repeated_id(tmp_path: Path) -> None:
+    # The same ticket twice would be scored twice.
+    line = json.dumps(record())
+    path = tmp_path / "tickets.jsonl"
+    path.write_text(f"{line}\n{line}\n", encoding="utf-8")
+    with pytest.raises(DatasetError, match=r"tickets\.jsonl:2: .*LDG-0042"):
+        load_tickets(path)
+
+
+def test_loader_names_a_file_it_cannot_decode(tmp_path: Path) -> None:
+    # Notepad's and Excel's "Unicode" options save UTF-16.
+    path = tmp_path / "tickets.jsonl"
+    path.write_text(json.dumps(record()) + "\n", encoding="utf-16")
+    with pytest.raises(DatasetError, match=r"tickets\.jsonl: .*UTF-8"):
+        load_tickets(path)
+
+
+def test_loader_names_the_bad_line(tmp_path: Path) -> None:
+    one, two = (json.dumps(record(id=f"LDG-000{i}")) for i in (1, 2))
+    path = tmp_path / "tickets.jsonl"
+    path.write_text(f"{one}\n{two}\n{{not json\n", encoding="utf-8")
     with pytest.raises(DatasetError, match=r"tickets\.jsonl:3:"):
         load_tickets(path)
 

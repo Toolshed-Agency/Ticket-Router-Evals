@@ -11,7 +11,7 @@ from collections.abc import Mapping, Sequence
 from evals.dataset import CANARY, TicketRecord
 from evals.mix import LANGUAGE_TOTALS, SLICE_SPLIT, TEAM_TOTALS, TOLERANCE
 
-ID_PATTERN = re.compile(r"LDG-\d{4}")
+ID_PATTERN = re.compile(r"LDG-[0-9]{4}")  # \d would also match non-ASCII digits
 
 
 def validate_dataset(dev: Sequence[TicketRecord], test: Sequence[TicketRecord]) -> list[str]:

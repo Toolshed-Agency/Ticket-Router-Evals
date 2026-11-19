@@ -97,6 +97,14 @@ def test_reports_a_malformed_id() -> None:
     assert len(validate_dataset(dev, test)) == 1
 
 
+def test_an_id_needs_ascii_digits() -> None:
+    dev, test = dataset()
+    dev[0] = relabel(dev[0], id="LDG-\u0661\u0662\u0663\u0664")
+    problems = validate_dataset(dev, test)
+    assert len(problems) == 1
+    assert "LDG-0000" in problems[0]
+
+
 def test_reports_a_missing_canary() -> None:
     dev, test = dataset()
     dev[3] = relabel(dev[3], canary=None)
