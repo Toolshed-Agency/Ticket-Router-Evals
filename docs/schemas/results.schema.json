@@ -248,7 +248,7 @@
     },
     "Repeat": {
       "additionalProperties": false,
-      "description": "One extra run of a ticket (`--repeat`), for the consistency metric. Exactly one of\n`output` (valid) and `raw_text` (invalid, kept exactly as received) is set.",
+      "description": "One extra run of a ticket (`--repeat`), used only by the consistency metric; cost, latency\nand schema validity use the first run. Exactly one of\n`output` (valid) and `raw_text` (invalid, kept exactly as received) is set.",
       "properties": {
         "output": {
           "anyOf": [
@@ -285,7 +285,7 @@
     },
     "TicketResult": {
       "additionalProperties": false,
-      "description": "One ticket's outcome. Exactly one of `output` (valid) and `raw_text` (invalid, kept\nexactly as received) is set. `coverage` holds one mark per gold issue, in order, on\nmulti-issue tickets; the judge fields are null when the ticket was not judged.",
+      "description": "One ticket's outcome. Exactly one of `output` (valid) and `raw_text` (invalid, kept\nexactly as received) is set. `coverage` holds one mark per gold issue, in order, on\ntickets with 2 or more gold issues; the judge fields are null when the ticket was not\njudged.",
       "properties": {
         "cached": {
           "title": "Cached",

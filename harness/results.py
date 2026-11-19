@@ -82,7 +82,8 @@ class Verdict(_Frozen):
 
 
 class Repeat(_Frozen):
-    """One extra run of a ticket (`--repeat`), for the consistency metric. Exactly one of
+    """One extra run of a ticket (`--repeat`), used only by the consistency metric; cost, latency
+    and schema validity use the first run. Exactly one of
     `output` (valid) and `raw_text` (invalid, kept exactly as received) is set."""
 
     output: dict[str, JsonValue] | None
@@ -97,7 +98,8 @@ class Repeat(_Frozen):
 class TicketResult(_Frozen):
     """One ticket's outcome. Exactly one of `output` (valid) and `raw_text` (invalid, kept
     exactly as received) is set. `coverage` holds one mark per gold issue, in order, on
-    multi-issue tickets; the judge fields are null when the ticket was not judged."""
+    tickets with 2 or more gold issues; the judge fields are null when the ticket was not
+    judged."""
 
     ticket_id: Text
     output: dict[str, JsonValue] | None
