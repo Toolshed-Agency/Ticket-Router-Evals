@@ -241,7 +241,7 @@ it; it counts as wrong on every field (section 8).
   "input": {
     "channel": "chat",
     "subject": "invoices generate nahi ho rahi",
-    "body": "Kal se koi invoice generate nahi ho rahi, 'sync failed' aa raha hai...",
+    "body": "Teesri dafa likh raha hoon! Kal se koi invoice generate nahi ho rahi, 'sync failed' aa raha hai...",
     "customer_tier": "pro",
     "prior_tickets_7d": 2
   },
@@ -263,7 +263,8 @@ it; it counts as wrong on every field (section 8).
 ```
 
 The example is P2, not P1: invoicing is down for the whole account, but the ticket gives no
-deadline (section 7, the P1 boundary).
+deadline (section 7, the P1 boundary). It escalates because the customer is writing for the third
+time about the same problem, with 2 earlier tickets, and is clearly frustrated.
 
 The JSON Schemas of the ticket record, the router output and the results file are published in
 [docs/schemas/](../../schemas/), generated from the code; a test fails if they drift.

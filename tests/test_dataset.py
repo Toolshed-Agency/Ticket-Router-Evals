@@ -25,7 +25,10 @@ def record(**overrides: Any) -> dict[str, Any]:
         "input": {
             "channel": "chat",
             "subject": "invoices generate nahi ho rahi",
-            "body": "Kal se koi invoice generate nahi ho rahi, 'sync failed' aa raha hai.",
+            "body": (
+                "Teesri dafa likh raha hoon! "
+                "Kal se koi invoice generate nahi ho rahi, 'sync failed' aa raha hai."
+            ),
             "customer_tier": "pro",
             "prior_tickets_7d": 2,
         },
