@@ -1,0 +1,285 @@
+{
+  "$defs": {
+    "AttackGoal": {
+      "additionalProperties": false,
+      "description": "What an injection ticket tries to make the router output.",
+      "properties": {
+        "escalate_to_human": {
+          "anyOf": [
+            {
+              "type": "boolean"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Escalate To Human"
+        },
+        "language": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Language"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "team": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Team"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "urgency": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Urgency"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        }
+      },
+      "title": "AttackGoal",
+      "type": "object"
+    },
+    "Channel": {
+      "enum": [
+        "email",
+        "web_form",
+        "chat"
+      ],
+      "title": "Channel",
+      "type": "string"
+    },
+    "GoldLabels": {
+      "additionalProperties": false,
+      "description": "The answer key: the router's label fields, without the draft and reasoning.",
+      "properties": {
+        "escalate_to_human": {
+          "title": "Escalate To Human",
+          "type": "boolean"
+        },
+        "issues": {
+          "items": {
+            "minLength": 1,
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Issues",
+          "type": "array"
+        },
+        "language": {
+          "$ref": "#/$defs/Language"
+        },
+        "team": {
+          "$ref": "#/$defs/Team"
+        },
+        "urgency": {
+          "$ref": "#/$defs/Urgency"
+        }
+      },
+      "required": [
+        "team",
+        "urgency",
+        "escalate_to_human",
+        "issues",
+        "language"
+      ],
+      "title": "GoldLabels",
+      "type": "object"
+    },
+    "Language": {
+      "description": "The language the customer wrote in (spec D2).",
+      "enum": [
+        "en",
+        "ur",
+        "roman_ur",
+        "mixed"
+      ],
+      "title": "Language",
+      "type": "string"
+    },
+    "Meta": {
+      "additionalProperties": false,
+      "properties": {
+        "attack_goal": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/AttackGoal"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "dataset_version": {
+          "pattern": "^\\d+\\.\\d+$",
+          "title": "Dataset Version",
+          "type": "string"
+        },
+        "drafted_by": {
+          "minLength": 1,
+          "title": "Drafted By",
+          "type": "string"
+        },
+        "sensitive_strings": {
+          "items": {
+            "minLength": 1,
+            "type": "string"
+          },
+          "title": "Sensitive Strings",
+          "type": "array"
+        },
+        "slice": {
+          "$ref": "#/$defs/Slice"
+        }
+      },
+      "required": [
+        "slice",
+        "attack_goal",
+        "sensitive_strings",
+        "drafted_by",
+        "dataset_version"
+      ],
+      "title": "Meta",
+      "type": "object"
+    },
+    "Slice": {
+      "description": "The one primary slice each Ledgerly ticket belongs to (spec section 7).",
+      "enum": [
+        "routine",
+        "multi_issue",
+        "angry_repeat",
+        "p1",
+        "vague",
+        "pii",
+        "injection"
+      ],
+      "title": "Slice",
+      "type": "string"
+    },
+    "Team": {
+      "description": "The primary owner of a ticket.",
+      "enum": [
+        "billing",
+        "technical",
+        "sales",
+        "refunds",
+        "account_security",
+        "other"
+      ],
+      "title": "Team",
+      "type": "string"
+    },
+    "TicketInput": {
+      "additionalProperties": false,
+      "description": "The five input fields a router sees (the ticket's id sits beside them).",
+      "properties": {
+        "body": {
+          "minLength": 1,
+          "title": "Body",
+          "type": "string"
+        },
+        "channel": {
+          "$ref": "#/$defs/Channel"
+        },
+        "customer_tier": {
+          "$ref": "#/$defs/Tier"
+        },
+        "prior_tickets_7d": {
+          "minimum": 0,
+          "title": "Prior Tickets 7D",
+          "type": "integer"
+        },
+        "subject": {
+          "title": "Subject",
+          "type": "string"
+        }
+      },
+      "required": [
+        "channel",
+        "subject",
+        "body",
+        "customer_tier",
+        "prior_tickets_7d"
+      ],
+      "title": "TicketInput",
+      "type": "object"
+    },
+    "Tier": {
+      "enum": [
+        "free",
+        "pro",
+        "enterprise"
+      ],
+      "title": "Tier",
+      "type": "string"
+    },
+    "Urgency": {
+      "description": "P1 is an outage, data loss or a security incident; respond within 1 hour.",
+      "enum": [
+        "P1",
+        "P2",
+        "P3",
+        "P4"
+      ],
+      "title": "Urgency",
+      "type": "string"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "canary": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Canary"
+    },
+    "gold": {
+      "$ref": "#/$defs/GoldLabels"
+    },
+    "id": {
+      "minLength": 1,
+      "title": "Id",
+      "type": "string"
+    },
+    "input": {
+      "$ref": "#/$defs/TicketInput"
+    },
+    "meta": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/Meta"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null
+    }
+  },
+  "required": [
+    "id",
+    "input",
+    "gold"
+  ],
+  "title": "TicketRecord",
+  "type": "object"
+}

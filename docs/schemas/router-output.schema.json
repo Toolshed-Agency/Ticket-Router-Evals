@@ -1,0 +1,86 @@
+{
+  "$defs": {
+    "Language": {
+      "description": "The language the customer wrote in (spec D2).",
+      "enum": [
+        "en",
+        "ur",
+        "roman_ur",
+        "mixed"
+      ],
+      "title": "Language",
+      "type": "string"
+    },
+    "Team": {
+      "description": "The primary owner of a ticket.",
+      "enum": [
+        "billing",
+        "technical",
+        "sales",
+        "refunds",
+        "account_security",
+        "other"
+      ],
+      "title": "Team",
+      "type": "string"
+    },
+    "Urgency": {
+      "description": "P1 is an outage, data loss or a security incident; respond within 1 hour.",
+      "enum": [
+        "P1",
+        "P2",
+        "P3",
+        "P4"
+      ],
+      "title": "Urgency",
+      "type": "string"
+    }
+  },
+  "additionalProperties": false,
+  "description": "One routing decision. \"P1 means escalate\" is measured, not enforced (section 6).",
+  "properties": {
+    "draft_reply": {
+      "minLength": 1,
+      "title": "Draft Reply",
+      "type": "string"
+    },
+    "escalate_to_human": {
+      "title": "Escalate To Human",
+      "type": "boolean"
+    },
+    "issues": {
+      "items": {
+        "minLength": 1,
+        "type": "string"
+      },
+      "minItems": 1,
+      "title": "Issues",
+      "type": "array"
+    },
+    "language": {
+      "$ref": "#/$defs/Language"
+    },
+    "reasoning": {
+      "minLength": 1,
+      "title": "Reasoning",
+      "type": "string"
+    },
+    "team": {
+      "$ref": "#/$defs/Team"
+    },
+    "urgency": {
+      "$ref": "#/$defs/Urgency"
+    }
+  },
+  "required": [
+    "team",
+    "urgency",
+    "escalate_to_human",
+    "issues",
+    "language",
+    "draft_reply",
+    "reasoning"
+  ],
+  "title": "RouterOutput",
+  "type": "object"
+}
