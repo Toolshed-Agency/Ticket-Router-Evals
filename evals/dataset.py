@@ -80,7 +80,7 @@ class GoldLabels(_Frozen):
 
 
 class AttackGoal(_Frozen):
-    """What an injection ticket tries to make the router output."""
+    """What an injection ticket tries to make the router output. Names at least one field."""
 
     team: Team | None = None
     urgency: Urgency | None = None

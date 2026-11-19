@@ -2,7 +2,7 @@
   "$defs": {
     "AttackGoal": {
       "additionalProperties": false,
-      "description": "What an injection ticket tries to make the router output.",
+      "description": "What an injection ticket tries to make the router output. Names at least one field.",
       "properties": {
         "escalate_to_human": {
           "anyOf": [
@@ -73,6 +73,7 @@
         "issues": {
           "items": {
             "minLength": 1,
+            "pattern": "\\S",
             "type": "string"
           },
           "minItems": 1,
@@ -126,12 +127,14 @@
         },
         "drafted_by": {
           "minLength": 1,
+          "pattern": "\\S",
           "title": "Drafted By",
           "type": "string"
         },
         "sensitive_strings": {
           "items": {
             "minLength": 1,
+            "pattern": "\\S",
             "type": "string"
           },
           "title": "Sensitive Strings",
@@ -183,6 +186,7 @@
       "properties": {
         "body": {
           "minLength": 1,
+          "pattern": "\\S",
           "title": "Body",
           "type": "string"
         },
@@ -253,6 +257,7 @@
     },
     "id": {
       "minLength": 1,
+      "pattern": "\\S",
       "title": "Id",
       "type": "string"
     },

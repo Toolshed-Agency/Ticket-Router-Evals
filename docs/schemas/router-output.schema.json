@@ -41,6 +41,7 @@
   "properties": {
     "draft_reply": {
       "minLength": 1,
+      "pattern": "\\S",
       "title": "Draft Reply",
       "type": "string"
     },
@@ -51,6 +52,7 @@
     "issues": {
       "items": {
         "minLength": 1,
+        "pattern": "\\S",
         "type": "string"
       },
       "minItems": 1,
@@ -62,6 +64,7 @@
     },
     "reasoning": {
       "minLength": 1,
+      "pattern": "\\S",
       "title": "Reasoning",
       "type": "string"
     },

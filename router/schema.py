@@ -12,7 +12,8 @@ from pydantic import BaseModel, ConfigDict, Field, StrictBool, StrictInt, String
 
 from harness.contracts import Router
 
-NonEmptyStr = Annotated[str, StringConstraints(strip_whitespace=True, min_length=1)]
+# The pattern repeats the stripped length check in the published JSON Schema, which cannot strip.
+NonEmptyStr = Annotated[str, StringConstraints(strip_whitespace=True, min_length=1, pattern=r"\S")]
 StrippedStr = Annotated[str, StringConstraints(strip_whitespace=True)]
 
 
