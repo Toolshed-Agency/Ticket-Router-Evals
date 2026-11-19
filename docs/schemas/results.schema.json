@@ -2,7 +2,7 @@
   "$defs": {
     "Aggregate": {
       "additionalProperties": false,
-      "description": "One metric for one group: \"overall\", \"slice:<name>\" or \"language:<code>\".",
+      "description": "One metric for one group: \"overall\", \"slice:<name>\" or \"language:<code>\". When the value\nand both interval ends are set, `ci_low <= value <= ci_high`.",
       "properties": {
         "ci_high": {
           "anyOf": [
@@ -27,10 +27,14 @@
           "title": "Ci Low"
         },
         "group": {
+          "minLength": 1,
+          "pattern": "\\S",
           "title": "Group",
           "type": "string"
         },
         "metric": {
+          "minLength": 1,
+          "pattern": "\\S",
           "title": "Metric",
           "type": "string"
         },
@@ -78,6 +82,8 @@
           "type": "number"
         },
         "model": {
+          "minLength": 1,
+          "pattern": "\\S",
           "title": "Model",
           "type": "string"
         },
@@ -87,6 +93,8 @@
           "type": "number"
         },
         "provider": {
+          "minLength": 1,
+          "pattern": "\\S",
           "title": "Provider",
           "type": "string"
         },
@@ -111,7 +119,7 @@
     },
     "Provenance": {
       "additionalProperties": false,
-      "description": "Everything needed to say exactly what was run.",
+      "description": "Everything needed to say exactly what was run. `dataset_version` is null for a run on\nyour own ticket file.",
       "properties": {
         "dataset_sha256": {
           "pattern": "^[0-9a-f]{64}$",
@@ -119,8 +127,16 @@
           "type": "string"
         },
         "dataset_version": {
-          "title": "Dataset Version",
-          "type": "string"
+          "anyOf": [
+            {
+              "pattern": "^\\d+\\.\\d+$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Dataset Version"
         },
         "git_commit": {
           "pattern": "^[0-9a-f]{40}$",
@@ -130,6 +146,8 @@
         "judge_model": {
           "anyOf": [
             {
+              "minLength": 1,
+              "pattern": "\\S",
               "type": "string"
             },
             {
@@ -139,6 +157,8 @@
           "title": "Judge Model"
         },
         "model": {
+          "minLength": 1,
+          "pattern": "\\S",
           "title": "Model",
           "type": "string"
         },
@@ -162,6 +182,8 @@
           "title": "Prompt Sha256"
         },
         "provider": {
+          "minLength": 1,
+          "pattern": "\\S",
           "title": "Provider",
           "type": "string"
         },
@@ -173,6 +195,8 @@
           "type": "object"
         },
         "router": {
+          "minLength": 1,
+          "pattern": "\\S",
           "title": "Router",
           "type": "string"
         },
@@ -189,11 +213,15 @@
           "title": "Rubric Sha256"
         },
         "split": {
+          "minLength": 1,
+          "pattern": "\\S",
           "title": "Split",
           "type": "string"
         },
         "switches_off": {
           "items": {
+            "minLength": 1,
+            "pattern": "\\S",
             "type": "string"
           },
           "title": "Switches Off",
@@ -218,9 +246,46 @@
       "title": "Provenance",
       "type": "object"
     },
+    "Repeat": {
+      "additionalProperties": false,
+      "description": "One extra run of a ticket (`--repeat`), for the consistency metric. Exactly one of\n`output` (valid) and `raw_text` (invalid, kept exactly as received) is set.",
+      "properties": {
+        "output": {
+          "anyOf": [
+            {
+              "additionalProperties": {
+                "$ref": "#/$defs/JsonValue"
+              },
+              "type": "object"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Output"
+        },
+        "raw_text": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Raw Text"
+        }
+      },
+      "required": [
+        "output",
+        "raw_text"
+      ],
+      "title": "Repeat",
+      "type": "object"
+    },
     "TicketResult": {
       "additionalProperties": false,
-      "description": "One ticket's outcome. Exactly one of `output` (valid) and `raw_text` (invalid) is set.",
+      "description": "One ticket's outcome. Exactly one of `output` (valid) and `raw_text` (invalid, kept\nexactly as received) is set. `coverage` holds one mark per gold issue, in order, on\nmulti-issue tickets; the judge fields are null when the ticket was not judged.",
       "properties": {
         "cached": {
           "title": "Cached",
@@ -238,6 +303,21 @@
           ],
           "title": "Cost Usd"
         },
+        "coverage": {
+          "anyOf": [
+            {
+              "items": {
+                "type": "boolean"
+              },
+              "minItems": 1,
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Coverage"
+        },
         "input_tokens": {
           "anyOf": [
             {
@@ -250,10 +330,9 @@
           ],
           "title": "Input Tokens"
         },
-        "issue_coverage": {
+        "judge_cost_usd": {
           "anyOf": [
             {
-              "maximum": 1,
               "minimum": 0,
               "type": "number"
             },
@@ -261,7 +340,31 @@
               "type": "null"
             }
           ],
-          "title": "Issue Coverage"
+          "title": "Judge Cost Usd"
+        },
+        "judge_input_tokens": {
+          "anyOf": [
+            {
+              "minimum": 0,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Judge Input Tokens"
+        },
+        "judge_output_tokens": {
+          "anyOf": [
+            {
+              "minimum": 0,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Judge Output Tokens"
         },
         "latency_ms": {
           "minimum": 0,
@@ -322,22 +425,14 @@
         },
         "repeats": {
           "items": {
-            "anyOf": [
-              {
-                "additionalProperties": {
-                  "$ref": "#/$defs/JsonValue"
-                },
-                "type": "object"
-              },
-              {
-                "type": "null"
-              }
-            ]
+            "$ref": "#/$defs/Repeat"
           },
           "title": "Repeats",
           "type": "array"
         },
         "ticket_id": {
+          "minLength": 1,
+          "pattern": "\\S",
           "title": "Ticket Id",
           "type": "string"
         },
@@ -364,8 +459,11 @@
         "cost_usd",
         "cached",
         "verdicts",
+        "judge_input_tokens",
+        "judge_output_tokens",
+        "judge_cost_usd",
         "pii_leak",
-        "issue_coverage",
+        "coverage",
         "passed",
         "repeats"
       ],
@@ -374,8 +472,11 @@
     },
     "Verdict": {
       "additionalProperties": false,
+      "description": "The judge's pass or fail on one criterion, with a one-line reason (spec D6).",
       "properties": {
         "criterion": {
+          "minLength": 1,
+          "pattern": "\\S",
           "title": "Criterion",
           "type": "string"
         },
@@ -384,6 +485,8 @@
           "type": "boolean"
         },
         "reason": {
+          "minLength": 1,
+          "pattern": "\\S",
           "title": "Reason",
           "type": "string"
         }
@@ -398,6 +501,7 @@
     }
   },
   "additionalProperties": false,
+  "description": "One run. `ci_run_url` is set exactly when `source` is `ci`.",
   "properties": {
     "aggregates": {
       "items": {

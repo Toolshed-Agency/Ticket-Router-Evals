@@ -1,8 +1,9 @@
 """The results file every run writes (spec section 6; plan P2-D4). A public contract.
 
 Generic on purpose (spec D1): outputs are stored as JSON objects and verdicts carry their
-criterion's name, so the format fits any routing task. Reproducing a number never needs a key:
-every raw output and judge verdict is here, and the aggregates can be recomputed from them.
+criterion's name, so the format fits any routing task. Reproducing a number never needs a key
+(spec S12): every output, the raw text of every invalid one, every judge verdict and every issue
+coverage mark is here, and the aggregates can be recomputed from them.
 """
 
 import re
@@ -20,11 +21,14 @@ from pydantic import (
     JsonValue,
     StrictBool,
     StrictInt,
+    StringConstraints,
     model_validator,
 )
 
 FORMAT_VERSION: Final = "1.0"
 
+# Plan P2-D2: names and reasons are stripped and never empty. Raw model text is never stripped.
+Text = Annotated[str, StringConstraints(strip_whitespace=True, min_length=1, pattern=r"\S")]
 Sha256 = Annotated[str, Field(pattern=r"^[0-9a-f]{64}$")]
 NonNegative = Annotated[float, Field(ge=0)]
 Count = Annotated[StrictInt, Field(ge=0)]
@@ -34,11 +38,16 @@ class _Frozen(BaseModel):
     model_config = ConfigDict(frozen=True, extra="forbid")
 
 
+def _one_outcome(output: object, raw_text: object) -> None:
+    if (output is None) == (raw_text is None):
+        raise ValueError("exactly one of output and raw_text must be set")
+
+
 class PriceEntry(_Frozen):
     """One line of the dated price table a run's costs were computed from."""
 
-    provider: str
-    model: str
+    provider: Text
+    model: Text
     input_usd_per_million: NonNegative
     output_usd_per_million: NonNegative
     as_of: date
@@ -46,33 +55,51 @@ class PriceEntry(_Frozen):
 
 
 class Provenance(_Frozen):
-    """Everything needed to say exactly what was run."""
+    """Everything needed to say exactly what was run. `dataset_version` is null for a run on
+    your own ticket file."""
 
     git_commit: Annotated[str, Field(pattern=r"^[0-9a-f]{40}$")]
-    dataset_version: str
+    dataset_version: Annotated[str, Field(pattern=r"^\d+\.\d+$")] | None
     dataset_sha256: Sha256
-    split: str  # "dev", "test", or the path of a user's own ticket file
-    router: str
-    switches_off: list[str]
+    split: Text  # "dev", "test", or the path of a user's own ticket file
+    router: Text
+    switches_off: list[Text]
     prompt_sha256: Sha256 | None
-    model: str
-    provider: str
+    model: Text
+    provider: Text
     request_settings: dict[str, JsonValue]
-    judge_model: str | None
+    judge_model: Text | None
     rubric_sha256: Sha256 | None
     prices: list[PriceEntry]
 
 
 class Verdict(_Frozen):
-    criterion: str
+    """The judge's pass or fail on one criterion, with a one-line reason (spec D6)."""
+
+    criterion: Text
     passed: StrictBool
-    reason: str
+    reason: Text
+
+
+class Repeat(_Frozen):
+    """One extra run of a ticket (`--repeat`), for the consistency metric. Exactly one of
+    `output` (valid) and `raw_text` (invalid, kept exactly as received) is set."""
+
+    output: dict[str, JsonValue] | None
+    raw_text: str | None
+
+    @model_validator(mode="after")
+    def _check_outcome(self) -> Self:
+        _one_outcome(self.output, self.raw_text)
+        return self
 
 
 class TicketResult(_Frozen):
-    """One ticket's outcome. Exactly one of `output` (valid) and `raw_text` (invalid) is set."""
+    """One ticket's outcome. Exactly one of `output` (valid) and `raw_text` (invalid, kept
+    exactly as received) is set. `coverage` holds one mark per gold issue, in order, on
+    multi-issue tickets; the judge fields are null when the ticket was not judged."""
 
-    ticket_id: str
+    ticket_id: Text
     output: dict[str, JsonValue] | None
     raw_text: str | None
     valid_first_try: StrictBool
@@ -82,23 +109,26 @@ class TicketResult(_Frozen):
     cost_usd: NonNegative | None
     cached: StrictBool
     verdicts: list[Verdict]
+    judge_input_tokens: Count | None
+    judge_output_tokens: Count | None
+    judge_cost_usd: NonNegative | None
     pii_leak: StrictBool | None
-    issue_coverage: Annotated[float, Field(ge=0, le=1)] | None
+    coverage: Annotated[list[StrictBool], Field(min_length=1)] | None
     passed: StrictBool
-    repeats: list[dict[str, JsonValue] | None]
+    repeats: list[Repeat]
 
     @model_validator(mode="after")
-    def _one_outcome(self) -> Self:
-        if (self.output is None) == (self.raw_text is None):
-            raise ValueError("exactly one of output and raw_text must be set")
+    def _check_outcome(self) -> Self:
+        _one_outcome(self.output, self.raw_text)
         return self
 
 
 class Aggregate(_Frozen):
-    """One metric for one group: "overall", "slice:<name>" or "language:<code>"."""
+    """One metric for one group: "overall", "slice:<name>" or "language:<code>". When the value
+    and both interval ends are set, `ci_low <= value <= ci_high`."""
 
-    metric: str
-    group: str
+    metric: Text
+    group: Text
     value: float | None
     n: Count
     ci_low: float | None
@@ -113,6 +143,8 @@ class Aggregate(_Frozen):
 
 
 class ResultsFile(_Frozen):
+    """One run. `ci_run_url` is set exactly when `source` is `ci`."""
+
     format_version: Literal["1.0"]
     run_id: Annotated[str, Field(pattern=r"^[a-z0-9-]+$")]
     created_at: AwareDatetime

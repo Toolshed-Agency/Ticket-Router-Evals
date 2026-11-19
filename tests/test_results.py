@@ -54,12 +54,20 @@ def ticket(**overrides: Any) -> dict[str, Any]:
         "cost_usd": 0.0,
         "cached": False,
         "verdicts": [{"criterion": "follows_policy", "passed": True, "reason": "Matches."}],
+        "judge_input_tokens": 2210,
+        "judge_output_tokens": 96,
+        "judge_cost_usd": 0.0,
         "pii_leak": None,
-        "issue_coverage": None,
+        "coverage": None,
         "passed": True,
         "repeats": [],
     }
     return base | overrides
+
+
+def with_provenance(**changes: Any) -> dict[str, Any]:
+    r = results()
+    return results(provenance=r["provenance"] | changes)
 
 
 def results(**overrides: Any) -> dict[str, Any]:
@@ -120,7 +128,19 @@ def test_a_full_results_file_round_trips() -> None:
         results(source="local", ci_run_url="https://example.com/run"),  # only ci runs have one
         results(tickets=[ticket(output={"team": "billing"}, raw_text="x")]),  # not both
         results(tickets=[ticket(output=None, raw_text=None)]),  # not neither
-        results(tickets=[ticket(issue_coverage=1.5)]),
+        results(tickets=[ticket(coverage=[])]),  # one mark per gold issue, so never empty
+        results(tickets=[ticket(coverage=["yes"])]),
+        results(tickets=[ticket(judge_cost_usd=-0.01)]),
+        results(tickets=[ticket(repeats=[{"output": None, "raw_text": None}])]),  # not neither
+        results(tickets=[ticket(repeats=[{"output": {"team": "x"}, "raw_text": "x"}])]),  # not both
+        results(tickets=[ticket(ticket_id="  ")]),  # strings are stripped and never empty
+        results(
+            tickets=[
+                ticket(verdicts=[{"criterion": "follows_policy", "passed": True, "reason": ""}])
+            ]
+        ),
+        with_provenance(dataset_version="v1"),
+        with_provenance(model=""),
         results(tickets=[ticket(cached="no")]),
         results(
             aggregates=[
@@ -149,3 +169,34 @@ def test_an_invalid_output_keeps_its_raw_text() -> None:
         results(tickets=[ticket(output=None, raw_text="not json", valid_first_try=False)])
     )
     assert parsed.tickets[0].raw_text == "not json"
+
+
+def test_raw_text_is_kept_exactly() -> None:
+    # Unlike names and reasons, a model's raw answer is evidence: never stripped.
+    parsed = ResultsFile.model_validate(
+        results(tickets=[ticket(output=None, raw_text="  \n", valid_first_try=False)])
+    )
+    assert parsed.tickets[0].raw_text == "  \n"
+
+
+def test_an_invalid_repeat_keeps_its_raw_text() -> None:
+    repeats = [{"output": {"team": "billing"}, "raw_text": None}, {"output": None, "raw_text": "{"}]
+    parsed = ResultsFile.model_validate(results(tickets=[ticket(repeats=repeats)]))
+    assert parsed.tickets[0].repeats[1].raw_text == "{"
+
+
+def test_coverage_keeps_one_mark_per_gold_issue() -> None:
+    # The share is recomputed from the marks by rescore; the marks are the evidence.
+    parsed = ResultsFile.model_validate(results(tickets=[ticket(coverage=[True, False, True])]))
+    assert parsed.tickets[0].coverage == [True, False, True]
+
+
+def test_a_run_on_your_own_tickets_has_no_dataset_version() -> None:
+    parsed = ResultsFile.model_validate(with_provenance(dataset_version=None, split="my.jsonl"))
+    assert parsed.provenance.dataset_version is None
+
+
+def test_an_unjudged_ticket_has_no_judge_cost() -> None:
+    unjudged = ticket(verdicts=[], judge_input_tokens=None, judge_output_tokens=None)
+    parsed = ResultsFile.model_validate(results(tickets=[unjudged | {"judge_cost_usd": None}]))
+    assert parsed.tickets[0].judge_cost_usd is None
