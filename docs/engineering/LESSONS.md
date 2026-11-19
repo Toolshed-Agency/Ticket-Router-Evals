@@ -5,6 +5,7 @@ happens. Newest first.
 
 | Date | What happened | What to do | Source |
 |---|---|---|---|
+| 2026-11-19 | Run from the repo root, wrangler read `.env` on its own and authenticated with the Workers AI token in it instead of the browser login; `wrangler logout` then refused to run. | Run wrangler from a folder without `.env` (the Worker's own folder), and check `wrangler whoami` before deploying. | Phase 1 review |
 | 2026-11-19 | In a Python Worker, imports inside a request handler cost up to 1.5 s of CPU for every new copy of the Worker; importing Google's SDK was stopped at 1.9 s ("exceeded CPU time limit"). | Import at module level, which Python Workers snapshot at deploy (a v3-sized call then used 18 ms typical). Keep heavy SDKs out of Workers. | Phase 1, Task 7 |
 | 2026-11-19 | `npx --yes wrangler` hung twice with no output, and pywrangler calls wrangler that way. Separately, piping wrangler through `\| tail` held back its login link until it exited. | Run `pywrangler sync`, then wrangler from its installed path (`node .../wrangler/bin/wrangler.js`). Send CLI output to a file, never through a pipe that buffers. | Phase 1, Task 7 |
 | 2026-11-19 | Cloudflare rejected a `compatibility_date` of the local date as "in the future": it checks in UTC. | Use the UTC date. | Phase 1, Task 7 |

@@ -30,8 +30,15 @@ Everything still to do. Items leave this file when they ship. As of 2026-11-19.
 - Phase 7: check whether Gemma 4 26B's reasoning can be turned down (28 s a call in the probe).
 - Phase 9: re-measure the demo's CPU with the real v3 code; decide whether the demo gets its own
   Gemini project, after checking Google's terms on rate limits.
-- After Task 9: `wrangler logout` on the development laptop. The Workers AI token stays until
-  phase 7 (it is limited to Workers AI on a Free account), then is revoked.
+- Wrangler was logged out on the development laptop after the probes (2026-11-19); Task 9 logs in
+  again and out when done. The Workers AI token stays until phase 7 (it is limited to Workers AI
+  on a Free account), then is revoked.
+- Deferred from the phase 1 review (minor): the CI secret test misses `secrets[...]`, `secrets:
+  inherit` and `workflow_run`; the boundary check rejects files saved with a UTF-8 BOM and has no
+  way to mark a false positive; a stale comment in `ci.yml` about a second Python version; pushes
+  to `main` can cancel each other's CI runs; CI jobs have no display names; probe scripts send the
+  prompt file's header comment; the phase 1 plan's execution log is empty and it cites internal
+  asks; no uv version pin for laptops (a sticky choice).
 
 ## Questions found while reading the scope
 
