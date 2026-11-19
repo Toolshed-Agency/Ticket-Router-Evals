@@ -5,6 +5,12 @@ happens. Newest first.
 
 | Date | What happened | What to do | Source |
 |---|---|---|---|
+| 2026-11-19 | In a Python Worker, imports inside a request handler cost up to 1.5 s of CPU for every new copy of the Worker; importing Google's SDK was stopped at 1.9 s ("exceeded CPU time limit"). | Import at module level, which Python Workers snapshot at deploy (a v3-sized call then used 18 ms typical). Keep heavy SDKs out of Workers. | Phase 1, Task 7 |
+| 2026-11-19 | `npx --yes wrangler` hung twice with no output, and pywrangler calls wrangler that way. Separately, piping wrangler through `\| tail` held back its login link until it exited. | Run `pywrangler sync`, then wrangler from its installed path (`node .../wrangler/bin/wrangler.js`). Send CLI output to a file, never through a pipe that buffers. | Phase 1, Task 7 |
+| 2026-11-19 | Cloudflare rejected a `compatibility_date` of the local date as "in the future": it checks in UTC. | Use the UTC date. | Phase 1, Task 7 |
+| 2026-11-19 | Google's Python SDK has no request timeout by default: one free-tier call hung for 8 minutes. | Set a timeout on every model call. | Phase 1, Task 6 |
+| 2026-11-19 | AI Studio listed free quota for Gemini 2.5 Flash, but the API refused it with 404 "no longer available to new users". | Trust a real call over the dashboard. | Phase 1, Task 6 |
+| 2026-11-19 | Printing Urdu model output crashed a script on the Windows console, whose default encoding cannot hold it. | `sys.stdout.reconfigure(encoding="utf-8")` in scripts that print model output. | Phase 1, Task 6 |
 | 2026-11-18 | A commit went through with a Ruff error: the checks ran with `;` between them, so the failure did not stop `git commit`. | Chain the checks and the commit with `&&`, so any failing check blocks the commit. | Phase 1, Task 5 |
 | 2026-11-18 | Ruff 0.17 also formats Python code inside Markdown, and would have rewrapped the plan's snippets. | `extend-exclude = ["*.md"]` in `pyproject.toml`: code in docs is illustrative. | Phase 1, Task 2 |
 | 2026-11-18 | A test that `evals` imports from this repo passed even with a fake `evals` package placed ahead of it: pytest puts the repo root first on `sys.path`. OpenAI publishes a package named `evals`. | Check import resolution in a fresh interpreter started outside the repo, the way the installed command runs. Watch a test fail before trusting it. | Phase 1, Task 1 |

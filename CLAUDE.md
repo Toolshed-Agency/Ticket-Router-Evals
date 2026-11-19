@@ -12,8 +12,9 @@ result visible.
 traceable to a committed results file. Credibility is the product. A number that is fudged, typed
 in by hand or cannot be reproduced destroys it.
 
-Status as of 2026-11-18: phase 1 (foundation and probes) in progress on `phase-1/foundation`. The
-project, its checks and CI are built; the probes are next. The design spec is approved:
+Status as of 2026-11-19: phase 1 (foundation and probes) on `phase-1/foundation`. The project, its
+checks and CI are built; four of the five probes are done (the Pages domain probe waits for the
+subdomain and a DNS record). The design spec is approved and updated with the probe results:
 [docs/engineering/specs/2026-11-17-ticket-router-evals-design.md](docs/engineering/specs/2026-11-17-ticket-router-evals-design.md).
 Phase 1 plan: [docs/engineering/plans/2026-11-18-phase-1-foundation.md](docs/engineering/plans/2026-11-18-phase-1-foundation.md).
 See also [docs/engineering/OPEN-WORK.md](docs/engineering/OPEN-WORK.md).

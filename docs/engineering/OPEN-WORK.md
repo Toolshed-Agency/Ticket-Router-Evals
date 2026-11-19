@@ -1,6 +1,6 @@
 # Open work
 
-Everything still to do. Items leave this file when they ship. As of 2026-11-18.
+Everything still to do. Items leave this file when they ship. As of 2026-11-19.
 
 ## Now
 
@@ -12,10 +12,26 @@ Everything still to do. Items leave this file when they ship. As of 2026-11-18.
 - [x] Write the plan for phase 1: [plans/2026-11-18-phase-1-foundation.md](plans/2026-11-18-phase-1-foundation.md).
 - [x] Phase 1, Tasks 1 to 5: the uv project, Ruff, mypy, pytest, the boundary test, secret checks
       and `ci.yml` (on `phase-1/foundation`, not yet pushed).
-- [ ] Phase 1, Tasks 6 to 10: the five probes (Gemini free tier, Python Workers, Workers AI, Pages
-      custom domain, Langfuse).
-- [ ] Phase 1, Tasks 11 and 12: apply the probe results, review the branch, push and open pull
-      requests.
+- [x] Phase 1, Tasks 6, 7, 8 and 10: the Gemini, Python Workers, Workers AI and Langfuse probes
+      ([reports](probes/)).
+- [ ] Phase 1, Task 9: the Pages custom-domain probe. Waits for the subdomain and one DNS record;
+      blocks phase 9 only.
+- [x] Phase 1, Task 11: the probe results and the decisions they needed are in the spec.
+- [ ] Phase 1, Task 12: review the branch, then push and open pull requests (after asking).
+
+## Follow-ups from the phase 1 probes
+
+- Phase 4 plan: choose the HTTP client the provider adapters use (S4). It is a dependency, so it
+  comes with options and a recommendation.
+- Phase 4: a timeout on every model call, and retries with backoff on 429, 503, 504 and timeouts
+  (spec section 6).
+- Phase 5, before tuning: run v1 on the frozen dev set with Gemini 3.1 and 3.5 Flash-Lite; the
+  better becomes the development model, the other the judge candidate (S11).
+- Phase 7: check whether Gemma 4 26B's reasoning can be turned down (28 s a call in the probe).
+- Phase 9: re-measure the demo's CPU with the real v3 code; decide whether the demo gets its own
+  Gemini project, after checking Google's terms on rate limits.
+- After Task 9: `wrangler logout` on the development laptop. The Workers AI token stays until
+  phase 7 (it is limited to Workers AI on a Free account), then is revoked.
 
 ## Questions found while reading the scope
 
