@@ -11,16 +11,30 @@ Everything still to do. Items leave this file when they ship. As of 2026-11-19.
       scanning and push protection switched on for the repo by an org admin.
 - [x] Write the plan for phase 1: [plans/2026-11-18-phase-1-foundation.md](plans/2026-11-18-phase-1-foundation.md).
 - [x] Phase 1, Tasks 1 to 5: the uv project, Ruff, mypy, pytest, the boundary test, secret checks
-      and `ci.yml` (on `phase-1/foundation`, not yet pushed).
+      and `ci.yml`.
 - [x] Phase 1, Tasks 6, 7, 8 and 10: the Gemini, Python Workers, Workers AI and Langfuse probes
       ([reports](probes/)).
 - [ ] Phase 1, Task 9: the Pages custom-domain probe. Waits for the subdomain and one DNS record;
       blocks phase 9 only.
 - [x] Phase 1, Task 11: the probe results and the decisions they needed are in the spec.
 - [x] Phase 1, Task 12: reviewed, pushed and merged (pull requests #1, #2 and #3).
-- [ ] Write the plan for phase 2 (contracts and guides).
+- [x] Write the plan for phase 2 (contracts and guides):
+      [plans/2026-11-19-phase-2-contracts.md](plans/2026-11-19-phase-2-contracts.md).
+- [x] Phase 2, Tasks 1 to 5: the router, ticket record and results file contracts, the mix
+      checks and the published JSON Schemas.
+- [x] Phase 2: a consistency review of the drafts, spec, plans and code; the fixes Ajlal approved
+      are in (plan execution log, 2026-11-19).
+- [ ] Phase 2, Tasks 6 to 9: Ajlal reviews the policy, labelling guide, scenario premises and
+      rubric; then each is committed.
+- [ ] Phase 2, Task 10: docs, an independent review of the branch, and the pull request.
 
 ## Follow-ups for later phases
+
+- Phase 3, before labelling: both labellers read and accept the labelling guide; the split script
+  (seeded, stratified) assigns tickets to dev and test at the freeze and writes `data/VERSION`.
+  `data/scenarios.csv` is not read while tuning: its premises summarise every ticket.
+- Phase 4: the file format for re-run coverage verdicts after a gold `issues` correction (spec
+  section 7, corrections), committed beside the runs it updates.
 
 - Phase 4 plan: choose the HTTP client the provider adapters use (S4). It is a dependency, so it
   comes with options and a recommendation.
