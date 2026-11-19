@@ -3,6 +3,10 @@
 harness/ is the general machinery Toolshed copies into client projects, so it must not import the
 Ledgerly routers or scoring (router/, evals/), read the Ledgerly data or policy (data/, context/),
 or mention Ledgerly at all.
+
+It fails closed: a bare "data" or "context" string counts as a path unless it is plainly used as
+a key or compared, because the ways to build a path from it are too many to list (the phase 1
+review found eleven the first version missed).
 """
 
 import ast
@@ -13,7 +17,7 @@ from pathlib import Path
 FORBIDDEN_MODULES = ("router", "evals")
 FORBIDDEN_DIRS = ("data", "context")
 DYNAMIC_IMPORTS = frozenset({"import_module", "__import__"})
-PATH_CALLS = frozenset({"Path", "PurePath", "open", "join", "joinpath"})
+KEY_METHODS = frozenset({"get", "pop", "setdefault"})  # x.get("data") reads a key, not a path
 
 
 @dataclass(frozen=True)
@@ -49,8 +53,14 @@ def _check_file(path: Path) -> list[Violation]:
 
 
 def _check_tree(path: Path, tree: ast.Module) -> list[Violation]:
+    # Names that act as importlib.import_module, including aliases such as `import_module as im`.
+    importers = set(DYNAMIC_IMPORTS)
+    for node in ast.walk(tree):
+        if isinstance(node, ast.ImportFrom) and node.module == "importlib":
+            importers |= {a.asname or a.name for a in node.names if a.name == "import_module"}
+
     found: list[Violation] = []
-    used_as_path: set[int] = set()  # ids of bare "data" or "context" constants used as paths
+    not_a_path: set[int] = set()  # ids of string constants used as keys or compared
     for node in ast.walk(tree):
         if isinstance(node, ast.Import):
             found += [
@@ -63,23 +73,28 @@ def _check_tree(path: Path, tree: ast.Module) -> list[Violation]:
                 found.append(Violation(path, node.lineno, f"imports {node.module}"))
         elif isinstance(node, ast.Call):
             name = _call_name(node.func)
-            for arg in node.args:
-                if not (isinstance(arg, ast.Constant) and isinstance(arg.value, str)):
-                    continue
-                if name in DYNAMIC_IMPORTS and _is_forbidden_module(arg.value):
-                    found.append(Violation(path, node.lineno, f"imports {arg.value}"))
-                elif name in PATH_CALLS and arg.value in FORBIDDEN_DIRS:
-                    used_as_path.add(id(arg))
-        elif isinstance(node, ast.BinOp) and isinstance(node.op, ast.Div):
-            for side in (node.left, node.right):
-                if isinstance(side, ast.Constant) and side.value in FORBIDDEN_DIRS:
-                    used_as_path.add(id(side))
+            if name is not None and (name in importers or name.endswith(tuple(DYNAMIC_IMPORTS))):
+                for arg in [*node.args, *(keyword.value for keyword in node.keywords)]:
+                    module = _constant_text(arg)
+                    if module is not None and _is_forbidden_module(module):
+                        found.append(Violation(path, node.lineno, f"imports {module}"))
+            if isinstance(node.func, ast.Attribute) and node.func.attr in KEY_METHODS and node.args:
+                not_a_path.add(id(node.args[0]))
+        elif isinstance(node, ast.Subscript):
+            not_a_path.add(id(node.slice))
+        elif isinstance(node, ast.Dict):
+            not_a_path.update(id(key) for key in node.keys if key is not None)
+        elif isinstance(node, ast.Compare):
+            not_a_path.update(id(operand) for operand in (node.left, *node.comparators))
     found += [
         Violation(path, node.lineno, f"reads {node.value!r}")
         for node in ast.walk(tree)
         if isinstance(node, ast.Constant)
         and isinstance(node.value, str)
-        and (id(node) in used_as_path or _has_forbidden_segment(node.value))
+        and (
+            (node.value in FORBIDDEN_DIRS and id(node) not in not_a_path)
+            or _has_forbidden_segment(node.value)
+        )
     ]
     return found
 
@@ -93,6 +108,17 @@ def _call_name(func: ast.expr) -> str | None:
         return func.id
     if isinstance(func, ast.Attribute):
         return func.attr
+    return None
+
+
+def _constant_text(node: ast.expr) -> str | None:
+    """The text of a string constant, or of an f-string made only of constant parts."""
+    if isinstance(node, ast.Constant) and isinstance(node.value, str):
+        return node.value
+    if isinstance(node, ast.JoinedStr) and all(
+        isinstance(part, ast.Constant) and isinstance(part.value, str) for part in node.values
+    ):
+        return "".join(str(part.value) for part in node.values if isinstance(part, ast.Constant))
     return None
 
 

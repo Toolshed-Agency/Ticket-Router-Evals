@@ -31,6 +31,18 @@ def write(tmp_path: Path, source: str) -> Path:
         "open('data')",
         "# Ledgerly-specific shortcut",
         "def f(:\n",
+        # Ordinary ways of writing paths and imports, found in the phase 1 review.
+        "DATA_DIR = 'data'",
+        "import os\nos.listdir('data')",
+        "import os\nos.walk('context')",
+        "import os\nos.scandir('data')",
+        "import glob\nglob.glob('data')",
+        "from pathlib import PurePosixPath\nPurePosixPath('data')",
+        "p = 'data' + '/tickets_dev.jsonl'",
+        "p = '/'.join(('context', 'policies.md'))",
+        "import importlib\nimportlib.import_module(name='router.v1')",
+        "from importlib import import_module as im\nim('router')",
+        "__import__(f'evals')",
     ],
 )
 def test_flags(tmp_path: Path, source: str) -> None:
@@ -44,6 +56,11 @@ def test_flags(tmp_path: Path, source: str) -> None:
         "p = 'metadata/x'",
         "d = 'dataset'",
         "import json",
+        "payload = {'data': 1}",
+        "kind = 'x'\nok = kind == 'data'",
+        "payload = {}\nx = payload.get('data')",
+        "payload = {}\nx = payload.pop('context', None)",
+        "payload = {}\nx = payload.setdefault('data', [])",
     ],
 )
 def test_allows(tmp_path: Path, source: str) -> None:
