@@ -1,5 +1,7 @@
 """The router's input and output contracts (spec section 6; plan P2-D2)."""
 
+import json
+
 import pytest
 from pydantic import ValidationError
 
@@ -46,9 +48,17 @@ def test_valid_output() -> None:
         {"escalate_to_humen": True},  # misspelled extra field
     ],
 )
-def test_invalid_output(change: dict[str, object]) -> None:
+@pytest.mark.parametrize("json_mode", [False, True], ids=["python", "json"])
+def test_invalid_output(change: dict[str, object], json_mode: bool) -> None:
+    # Phase 4 validates model answers as JSON text, so both modes must be equally strict.
     with pytest.raises(ValidationError):
-        RouterOutput.model_validate(VALID | change)
+        validate(VALID | change, json_mode=json_mode)
+
+
+def validate(data: dict[str, object], *, json_mode: bool) -> RouterOutput:
+    if json_mode:
+        return RouterOutput.model_validate_json(json.dumps(data))
+    return RouterOutput.model_validate(data)
 
 
 def test_missing_field_is_invalid() -> None:
