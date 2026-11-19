@@ -11,6 +11,7 @@ in `harness/`, `router/` or `evals/` imports them.
 | `probe_prompt.md` | A stand-in system prompt about the size of v3's. **Not** the Ledgerly prompt, labelling guide or policy, which are written in phases 2 and 5 |
 | `probe_schema.py` | The router output fields (spec section 6) as a Pydantic model and JSON schema |
 | `gemini_probe.py` | Task 6: Gemini free-tier limits, latency, tokens and structured-output validity |
+| `workers_ai_probe.py` | Task 8: open models on Workers AI: validity, latency and neurons per call |
 
 Run from the repo root, with keys in `.env` (see `.env.example`):
 
