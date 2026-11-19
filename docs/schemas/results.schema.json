@@ -499,6 +499,7 @@
       "type": "object"
     }
   },
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
   "additionalProperties": false,
   "description": "One run. `ci_run_url` is set exactly when `source` is `ci`. Each ticket appears once.\nIf any ticket was judged, the provenance names the judge model and the rubric hash.",
   "properties": {

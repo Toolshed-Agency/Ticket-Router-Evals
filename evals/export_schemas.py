@@ -21,10 +21,12 @@ SCHEMAS: Final[dict[str, type[BaseModel]]] = {
 }
 
 OUT_DIR: Final = Path(__file__).resolve().parents[1] / "docs" / "schemas"
+# The draft Pydantic generates; named so a validator does not fall back to its own default.
+DRAFT: Final = "https://json-schema.org/draft/2020-12/schema"
 
 
 def render(model: type[BaseModel]) -> str:
-    schema = model.model_json_schema()
+    schema = {"$schema": DRAFT, **model.model_json_schema()}
     return json.dumps(schema, indent=2, sort_keys=True, ensure_ascii=False) + "\n"
 
 

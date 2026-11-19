@@ -36,6 +36,7 @@
       "type": "string"
     }
   },
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
   "additionalProperties": false,
   "description": "One routing decision. \"P1 means escalate\" is measured, not enforced (section 6).",
   "properties": {

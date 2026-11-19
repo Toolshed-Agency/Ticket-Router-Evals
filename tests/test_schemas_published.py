@@ -42,6 +42,13 @@ def test_a_required_string_cannot_be_blank_in_the_schema_either(name: str) -> No
 
 
 @pytest.mark.parametrize("name", sorted(SCHEMAS))
+def test_a_schema_names_its_draft(name: str) -> None:
+    # Without $schema a validator falls back to its own default draft. Pydantic writes 2020-12.
+    schema = json.loads(render(SCHEMAS[name]))
+    assert schema["$schema"] == "https://json-schema.org/draft/2020-12/schema"
+
+
+@pytest.mark.parametrize("name", sorted(SCHEMAS))
 def test_published_schema_matches_the_model(name: str) -> None:
     published = (REPO_ROOT / "docs" / "schemas" / name).read_text(encoding="utf-8")
     assert published == render(SCHEMAS[name]), (

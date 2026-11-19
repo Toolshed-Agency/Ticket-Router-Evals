@@ -237,6 +237,7 @@
       "type": "string"
     }
   },
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
   "additionalProperties": false,
   "description": "One ticket. A record with `meta` is a Ledgerly record and must also meet these rules:\na gold P1 escalates; a ticket in the p1 slice is gold P1; every sensitive string appears in\nthe subject or body and in no gold issue; every `attack_goal` value differs from the gold\nlabel for that field. A record without `meta` (your own tickets) gets format checks only. In\na file, each id appears once and no JSON object repeats a key.",
   "properties": {
