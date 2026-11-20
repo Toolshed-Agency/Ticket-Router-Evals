@@ -115,7 +115,8 @@ maintainer caught the first; audits once everything was written found the rest (
    the contracts (`router/schema.py`, `evals/dataset.py`, published as JSON Schemas); what each
    label means in the labelling guide; support rules and numbers in the policy; grading in the
    rubric. Every other document, the spec and code comments included, links to the home instead
-   of rewording it. A plan's decision table records an approval; it is not a copy kept in sync.
+   of rewording it. Decision tables (the spec's decisions and its differences from the scope of
+   work, and each plan's) record approvals; they are not copies kept in sync.
    Where a copy cannot be a link (the spec lists the allowed values; the rubric's examples quote
    the policy's times), a test in `tests/test_documents.py` checks it against its home.
 2. **Cases before rules.** Before writing a rule document, write about 30 boundary cases with the

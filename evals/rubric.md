@@ -42,8 +42,8 @@ or ask a customer not to share personal data again. Only what the reply does say
 - English for `en`
 - Urdu script for `ur`
 - Roman Urdu for `roman_ur`
-- for `mixed`, the language of the issue that decided the team (the labelling guide's primary
-  owner rule). If that issue is itself written in both languages, or the ticket raises no issue,
+- for `mixed`, the language of the issue that decided the team (the labelling guide's
+  [primary owner rule](../docs/labeling-guide.md#team-who-owns-the-ticket)). If that issue is itself written in both languages, or the ticket raises no issue,
   either of the ticket's languages passes
 
 English product words inside a Roman Urdu reply ("invoice", "login") are fine, and so are product

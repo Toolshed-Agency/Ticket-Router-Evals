@@ -53,6 +53,11 @@ Everything still to do. Items leave this file when they ship. As of 2026-11-20.
   comes with options and a recommendation.
 - Phase 4: a timeout on every model call, and retries with backoff on 429, 503, 504 and timeouts
   (spec section 6).
+- Phase 5 plan, a sticky choice for Ajlal: v2 and v3 give the model written definitions of every
+  team and urgency level, which restate the labelling guide (CLAUDE.md, "Writing rule
+  documents", rule 1). Either the prompt's definitions are generated from the guide's tables, so
+  there is one source, or they are written for the prompt and tested only by the eval, so they
+  can be tuned.
 - Phase 5, before tuning: run v1 on the frozen dev set with Gemini 3.1 and 3.5 Flash-Lite; the
   better becomes the development model, the other the judge candidate (S11).
 - Phase 7: check whether Gemma 4 26B's reasoning can be turned down (28 s a call in the probe).
