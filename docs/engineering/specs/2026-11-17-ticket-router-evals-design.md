@@ -1,7 +1,7 @@
 # Ticket Router Evals: design spec
 
 Date: 2026-11-17 · Updated: 2026-11-20 (phase 1 probe results; phase 2 contracts; label meanings
-defined only in the labelling guide) · Supersedes: nothing (first spec)
+defined only in the labelling guide; one labeller, D12) · Supersedes: nothing (first spec)
 
 This is the whole-project design. It records what we are building, why, every decision made so
 far with the alternatives considered, and what is left to the builder. Each phase gets its own
@@ -50,8 +50,8 @@ Gemini and Airtable) in code, so it costs nothing to run and anyone can reproduc
 **Goals (acceptance criteria).**
 - Public repo, MIT (code) and CC BY 4.0 (data); the README (section 12) quickstart works from a
   clean clone in under 10 minutes.
-- 200 tickets, each labelled by two people, agreement published; test set untouched until final
-  runs.
+- 200 tickets, each labelled by one person, with an automated second pass flagging tickets to
+  re-check (D12); test set untouched until final runs.
 - v1, v2 and v3 scored on dev and test; v3 compared on at least 3 models (3 to 4 as scoped, plus
   an optional free Workers AI model).
 - Every metric in section 8 computed; the judge calibrated against at least 40 human-graded
@@ -114,6 +114,12 @@ databases, paid hosting. Rebuilding the original Make and Airtable version.
 | D10 | **Everything is free during development.** If free quota cannot carry the work: the router and judge use separate free quotas; runs resume across days from the cache; CI reports "incomplete" (neither pass nor fail) until a run completes; before phase 5, a free development model with a larger quota may replace Gemini. **Applied after the phase 1 probe:** development uses Gemini Flash-Lite (500 requests a day), not a Flash-class model (20 a day); see S11 | Paid development runs from the one-time budget | Keeps the one-time budget for the model comparison |
 | D11 | **The site is on Cloudflare Pages under the subdomain, through one CNAME record; the demo Worker runs at its own workers.dev address.** | Move the company's DNS to Cloudflare and serve both from one Worker | The company's DNS is hosted elsewhere. Workers custom domains require the zone on Cloudflare; Pages accepts a subdomain CNAME from any DNS host. Smallest possible change |
 
+### Made after the walkthrough
+
+| Id | Decision | Alternatives considered | Why |
+|---|---|---|---|
+| D12 | **One person labels every ticket, reviews the Urdu, Roman Urdu and mixed tickets, and grades every calibration draft; an automated second pass flags tickets for that person to re-check** (2026-11-20). The second pass labels every ticket again in a fresh context that holds only the labelling guide, the policy it refers to, and the ticket's inputs. The labeller sees the second pass's labels only after finishing, re-checks every ticket where they differ (team, urgency, escalation or language, or the number of issues; never the issues' wording alone), and decides; the final label is always the labeller's. The second pass runs again on any ticket rewritten to fit its slice, and on every ticket after the guide changes. No labelling agreement rate is published, only how many tickets the second pass flagged and how many of them changed. The judge is calibrated against the one grader's grades, given once, with no human-vs-human ceiling. | A second person; the labeller labelling twice, weeks apart, to publish their agreement with themselves; publishing agreement with the second pass | No one else is free to label or grade. The second pass still catches slips, and an agreement figure between a person and an automated pass would not measure what readers expect one to |
+
 ### Language rules (extends D2)
 
 What each language label means is defined in the labelling guide's
@@ -159,7 +165,7 @@ Ticket-Router-Evals/
   data/           tickets_dev.jsonl, tickets_test.jsonl, test.lock, VERSION, scenarios.csv,
                   LICENSE, labels/, disagreements.jsonl, errata.jsonl
   context/        policies.md
-  docs/           labeling-guide.md, methodology.md, agreement-report.md, schemas/, design/,
+  docs/           labeling-guide.md, methodology.md, labeling-report.md, schemas/, design/,
                   engineering/
   results/        one JSON file per run (committed)
   site/           Astro site
@@ -169,7 +175,9 @@ Ticket-Router-Evals/
 ```
 
 The scope's folders (`data/`, `context/`, `docs/`, `router/`, `evals/`, `results/`, `site/`,
-`.github/workflows/eval.yml`) and files keep their names so the repo reads as the scope describes.
+`.github/workflows/eval.yml`) and files keep their names so the repo reads as the scope describes,
+except `docs/agreement-report.md`, which becomes `docs/labeling-report.md` because it holds no
+agreement rate (D12).
 Added: `harness/` (D1), `demo/`, `tests/`, the extra `data/` files (sections 7 and 11),
 `evals/cli.py`, `evals/calibration/` (section 10), `docs/design/` (section 12),
 `docs/engineering/`, and the `ci.yml`, `eval-comment.yml` and `deploy.yml` workflows. Packaging the
@@ -401,15 +409,16 @@ v2 and v3 are always compared on the same ~142 dev tickets. The methodology page
    (typos, rambling, missing details). About 10% are written entirely by hand. Every ticket
    records `drafted_by`.
 5. **Native-speaker review** of every Urdu, Roman Urdu and mixed ticket.
-6. **Two independent labels** per ticket. Labellers see inputs only, never each other's labels.
-   Their labels are kept in `data/labels/`.
-7. **Agreement and resolution.** Cohen's kappa per field (linear weighted kappa for urgency,
-   which is ordered) and raw agreement. Every disagreement is logged in
-   `data/disagreements.jsonl` with its resolution and reason. Published in
-   `docs/agreement-report.md` and on the site, computed from the committed label files by
-   `build-site`, never typed in. A ticket whose agreed label breaks its slice's rule (a p1-slice
-   ticket agreed to be P2) is rewritten and labelled again blind; a label is never changed to
-   fit.
+6. **One labeller, then an automated second pass (D12).** The labeller sees each ticket's inputs
+   only. The second pass then labels every ticket again in a fresh context that holds only the
+   labelling guide, the policy it refers to, and the inputs, never the scenario list or the first
+   labels. Both sets of labels are kept in `data/labels/`, with the second pass's brief beside its
+   labels.
+7. **Re-check.** Every ticket where the two differ is re-checked as the labelling guide's
+   [re-check section](../../labeling-guide.md#re-checking-flagged-tickets) describes, and logged
+   in `data/disagreements.jsonl` with the decision and the reason. No agreement rate is published:
+   `docs/labeling-report.md` and the site give how many tickets the second pass flagged and how
+   many of them changed, computed from the committed files by `build-site`, never typed in.
 8. **Freeze and lock.** Dataset version 1.0, written in `data/VERSION`. `data/test.lock` holds
    the SHA-256 of the test file (line endings normalised); CI fails if it changes. Freeze happens **before any prompt tuning**.
 
@@ -425,10 +434,10 @@ each version had. Test results are reported separately from dev results.
 ### Corrections after the freeze
 
 Tuning will expose some wrong gold labels. Corrections are allowed, in the open:
-- A correction to a dev label needs both labellers to agree, citing the labeling-guide rule it
-  follows. It is logged in `data/errata.jsonl` (old label, new label, reason) and bumps the
-  dataset version in `data/VERSION` (1.0 to 1.1). The version is not stored in the records, so a
-  dev correction never touches the locked test file. The agreement report publishes the number of corrections.
+- A correction to a dev label cites the labeling-guide rule it follows. It is logged in
+  `data/errata.jsonl` (old label, new label, reason) and bumps the dataset version in
+  `data/VERSION` (1.0 to 1.1). The version is not stored in the records, so a dev correction
+  never touches the locked test file. The labelling report publishes the number of corrections.
 - Ticket inputs are not edited after the freeze (except to remove anything that should never have
   been there), so stored outputs stay valid: `rescore` re-scores any run against any dataset
   version without calling a model. One exception: issue coverage depends on the judge's reading
@@ -531,17 +540,17 @@ client projects, so the comparison shows what each technique buys.
 - **PII is checked by code, not the judge** (section 8, PII leak rate).
 - **One pinned judge model** for every run (exact id, chosen in phase 6). It runs on a free tier
   (D10), with a quota separate from the router's. The first candidate is the Flash-Lite model that
-  is not the development model (S11). Its agreement with humans is also reported per router model
-  family, to show whether it favours its own family.
+  is not the development model (S11). Its agreement with the human grader is also reported per
+  router model family, to show whether it favours its own family.
 - **The judge treats the ticket and the draft strictly as data**, since an injection ticket can
   target the judge too.
 - **Calibration:** 40 drafts from dev runs, spread across versions, languages and slices, graded
-  independently by two people who read Urdu script and Roman Urdu. Report judge-vs-human agreement
-  per criterion (raw and kappa) and human-vs-human agreement as the ceiling, on the site's
-  methodology page. Bar: at least 80% judge-vs-human agreement on each criterion. Each grader's
-  grades are committed in `evals/calibration/` (one file per grader), and the judge's verdicts on
-  the same drafts in a results file; every agreement figure is computed from these committed
-  files, never typed in.
+  by one person who reads Urdu script and Roman Urdu (D12). Report judge-vs-human agreement per
+  criterion (raw and kappa) on the site's methodology page; with one grader there is no
+  human-vs-human ceiling. Bar: at least 80% judge-vs-human agreement on each criterion. The
+  grader's grades are committed in `evals/calibration/`, and the judge's verdicts on the same
+  drafts in a results file; every agreement figure is computed from these committed files, never
+  typed in.
 - **If the bar is missed:** revise the rubric, then measure on 20 fresh drafts not used for the
   revision; at most two revisions. A criterion still under the bar is published with its
   shortfall, marked "judge not calibrated", and left out of "safe to send". This does not block
@@ -549,7 +558,7 @@ client projects, so the comparison shows what each technique buys.
 - **Per-family check:** phase 6 drafts come from the development model's family, so a second
   small round in phase 7 grades 10 drafts from each other comparison family (about 30).
 - **Grader time to book up front:** 40 drafts, up to 40 more for revisions, and about 30 in
-  phase 7. At roughly two minutes a draft, two to four hours per grader.
+  phase 7. At roughly two minutes a draft, two to four hours.
 - Judge verdicts are cached and stored in results files. The pull-request gate does not run the
   judge; manual eval runs do (section 11).
 
@@ -621,18 +630,19 @@ ticket-router-evals.toolshedservices.com (an open decision). Fully public, no lo
    the judge's reasons. v1 and v3 side by side on the same ticket. It covers every scored ticket
    in both splits; test tickets appear once the final runs are done. The most convincing page,
    because nothing is hidden.
-4. **Methodology:** how the dataset was built and labelled, agreement rates, metric definitions,
-   judge calibration and judge-vs-human agreement, the few-shot exclusion (~142 scored dev
-   tickets), and honest limitations (small slices, tuned on the development model, LLM-drafted
-   tickets). If v3 is only slightly better than v1 or v2, this page and the scorecard paragraph
-   say so and explain why.
+4. **Methodology:** how the dataset was built and labelled (one labeller and an automated second
+   pass, D12), metric definitions, judge calibration and judge-vs-human agreement, the few-shot
+   exclusion (~142 scored dev tickets), and honest limitations (small slices, tuned on the
+   development model, LLM-drafted tickets, one labeller and one grader). If v3 is only slightly
+   better than v1 or v2, this page and the scorecard paragraph say so and explain why.
 5. **Work with us:** "Want this for your AI agent?", with links to toolshedservices.com and a
    booking link.
 
 - **Numbers come only from committed files.** Pages take numbers only from the generated data
   files. The numbers-match test checks the data files against a fresh `rescore` of the results
-  files, checks the agreement figures against the committed label and calibration files, and
-  checks that every number rendered in the built pages comes from those data files.
+  files, checks the counts of flagged and changed tickets and the judge's agreement figures
+  against the committed label and calibration files, and checks that every number rendered in the
+  built pages comes from those data files.
 - **Which run is shown.** Only `source: ci` runs. For the test split, the first test run of each
   final version (per model) is the headline; later test runs are listed, never substituted. For
   dev, the latest CI run of that version. Router versions are frozen at the launch tag; a later
@@ -686,18 +696,18 @@ Each phase is planned just before it starts. People-dependent work is on the cri
 |---|---|---|---|
 | 1 | Foundation and probes | | uv project, layout, Ruff, type check, pytest, `ci.yml`, boundary test, secret checks. Probes (section 15) |
 | 2 | Contracts and guides | 1 | Schemas, results format, labeling guide, policy document, scenario list, rubric draft. Guide reviewed before phase 3 labelling |
-| 3 | Dataset | 2, labellers and reviewer available | Drafting, editing, native review, double labelling, agreement report, freeze and lock. Slowest phase |
+| 3 | Dataset | 2 | Drafting, editing, native review, labelling and the automated second pass (D12), labelling report, freeze and lock. Slowest phase |
 | 4 | Harness | 2 | Runner, model client and adapters, cache, recorder, optional Langfuse tracing, metrics, stats, results, `compare`, `rescore`, CLI. Built against a small synthetic fixture set, in parallel with 3 |
 | 5 | Routers v1 to v3 | 3 frozen, 4 | Tuning starts only after the freeze |
-| 6 | Judge and calibration | 5, human graders | Rubric, judge, 40-draft calibration |
+| 6 | Judge and calibration | 5 | Rubric, judge, 40-draft calibration |
 | 7 | Comparison, ablation, test runs | 6 | Comparison models chosen from current prices, plus a free Workers AI model (D9); the per-family grading round; final test runs from a tagged commit |
 | 8 | Regression check in CI | 5 | `eval.yml` (the gate and manual runs), `eval-comment.yml`, fork handling, the Actions cache, branch protection on `main` |
 | 9 | Website and demo | 4 for the skeleton, 7 for final numbers | Design system first; demo after v3 is final |
 | 10 | Launch | all | README complete. Launch assets prepared in the last two days and published together: a 3-minute Loom walking through the website and the v1 → v3 story, and the repo pinned on the Toolshed GitHub organisation |
 
-Critical path: labellers available → dataset frozen → router tuning → judge calibration → final
-runs → site numbers → launch. Phases 1, 2, 4 and the site skeleton can proceed without waiting
-on people.
+Critical path: labelling → dataset frozen → router tuning → judge calibration → final runs →
+site numbers → launch. Phases 1, 2, 4 and the site skeleton can proceed while the labelling is
+under way.
 
 ## 15. Probes, risks, open questions
 
@@ -722,7 +732,7 @@ on people.
 
 | Risk | Effect | Mitigation |
 |---|---|---|
-| Labellers or reviewers not available | Dataset, and everything after it, slips | Ask early; phases 1, 2, 4 proceed meanwhile |
+| One person labels, reviews the Urdu and grades (D12) | The dataset and calibration wait on one person's time; a slip has no second person to catch it | The automated second pass flags every difference for a re-check; phase 4 and the site skeleton proceed meanwhile |
 | Free-tier limits too low | Slow development and CI; ablation does not fit | Probe first; D10 fallbacks; D4 fallback; cache aggressively |
 | Free tier overloaded (503, 504) | Slow or incomplete runs | Request timeouts, retries with backoff, resume from the cache, CI "incomplete" (D10) |
 | The demo's CPU or start-up exceeds the Free plan's limits | Requests fail (error 1102) or deploys are rejected | Imports at module level (S8); a sustained test of the real v3 code in phase 9; the TypeScript fallback (S8), or Workers Paid ($5 a month) only with approval |
@@ -734,8 +744,6 @@ on people.
 
 **Open questions** (owned by Toolshed, tracked internally; none blocks phases 1, 2 or 4):
 - The subdomain: evals.toolshedservices.com or ticket-router-evals.toolshedservices.com.
-- Who does the second round of labelling; who reviews the Urdu and Roman Urdu tickets; who are
-  the two human graders.
 - Accounts and keys for the paid model-comparison runs.
 - A Cloudflare account owned by Toolshed (the phase 1 probes used a free account that can be
   handed over), and one CNAME record added at the company's DNS host.
@@ -750,8 +758,8 @@ and `evals/`.
 
 ## 17. Differences from the scope of work
 
-Everything the scope of work asks for is in this spec. This section lists every place the spec
-changes, interprets or adds to it, so nothing is a surprise.
+Everything the scope of work asks for is in this spec, apart from the changes this section lists.
+It lists every place the spec changes, interprets or adds to the scope, so nothing is a surprise.
 
 ### Changed or interpreted
 
@@ -777,6 +785,8 @@ changes, interprets or adds to it, so nothing is a surprise.
 | Judge scores 1 to 5 on a rubric | Pass/fail per criterion with reasons; 1 to 5 derived (1 + passes) | People agree more on yes/no; failures explain themselves | D6 |
 | Under 80% agreement: fix the rubric before trusting the judge | Bar applied per criterion; at most two revisions on fresh drafts; a criterion still under is published as "judge not calibrated", left out of "safe to send", and does not block launch | An honest outcome if the bar is never reached | §10 |
 | Judge calibrated on 40 human-graded drafts | 40, plus up to 40 for revisions and about 30 for other model families | Fresh drafts after a revision; per-family check | §10 |
+| Two people label every ticket independently; disagreements logged and resolved; the agreement rate published (also an acceptance criterion) | One person labels every ticket; an automated second pass labels them again, and every difference is re-checked and logged. No agreement rate: how many tickets were flagged and how many of them changed is published instead | No second person is free | D12, §7, §12 |
+| Two people grade the 40 calibration drafts | One person grades them; judge-vs-human agreement is reported against that grader with the same bar, and there is no human-vs-human ceiling | No second person is free | D12, §10 |
 | CI runs on pull requests touching `router/` or prompts | Also on `context/`, `evals/`, `harness/` and `data/` | Those change the scores too | §11 |
 | CI runs the dev set | The pull-request gate runs v3 on the development model plus changed versions, labels only; manual runs do the full evaluation with the judge and repeats | Free-tier quota on every pull request | §11 |
 | CI fails if P1 recall drops at all, or team accuracy drops more than 2 points | Same thresholds, applied to confirmed drops; "incomplete" when quota runs out | Model noise would otherwise fail it at random | D7, D10 |
@@ -785,12 +795,12 @@ changes, interprets or adds to it, so nothing is a surprise.
 | API keys in `.env` and GitHub secrets | Plus the demo Worker's Cloudflare secrets | The demo needs its key at Cloudflare | §3 |
 | One public repo under the Toolshed GitHub org, `ticket-router-evals` | `Toolshed-Agency/Ticket-Router-Evals`: the same name with capitals; GitHub links work either way | The repo was created with that capitalisation | §3 |
 | Every router implements `predict(ticket) -> RouterOutput` | Same, plus a `name` and an `InvalidOutput` error for unreadable answers | Names each run; lets a router report an unreadable answer instead of guessing | §6 |
-| The scope's folder layout | Same names, plus `harness/`, `demo/`, `tests/`, extra `data/` files, `evals/cli.py`, `evals/calibration/`, `docs/design/`, `docs/engineering/`, `ci.yml`, `eval-comment.yml`, `deploy.yml` | D1 boundary; demo code; agreement figures from committed files; checks | §5 |
+| The scope's folder layout | Same names, plus `harness/`, `demo/`, `tests/`, extra `data/` files, `evals/cli.py`, `evals/calibration/`, `docs/design/`, `docs/engineering/`, `ci.yml`, `eval-comment.yml`, `deploy.yml`. `docs/agreement-report.md` becomes `docs/labeling-report.md` | D1 boundary; demo code; agreement figures from committed files; checks. The report holds no agreement rate (D12) | §5 |
 | Three CLI commands | Plus `rescore`, `validate-data`, `--data`, `--router <module>:<Class>`, `--confirm-test`, `--repeat`, `--switch`, `--limit`, `--no-judge`, `--max-cost` | Verification without keys; bring your own router and tickets; test-set guard; spend limit | §6 |
 | The only backend is one small Worker; no databases | One Worker, plus a Durable Object counter (today's count and hashed addresses, cleared daily) and Turnstile | An exact daily cap needs shared state; no ticket text or accounts are stored | S9, §13 |
 | Visitors paste a ticket and see v3's output | Off for visitors in the EEA, Switzerland and the UK, and when the country is unknown | Gemini's free terms | D9 |
 | Submitted text is never stored | Never stored or logged by us; the free tier's data-use terms are stated next to the box | Google may use free-tier content | D8 |
-| Open decisions before kickoff | Still open; none blocks phases 1, 2 or 4 | Work starts while they are answered | §15 |
+| Open decisions before kickoff | Who labels and who reviews the Urdu tickets: answered by D12. The rest are still open; none blocks phases 1, 2 or 4 | Work starts while they are answered | D12, §15 |
 
 ### Added beyond the scope
 
@@ -800,4 +810,5 @@ per-language reporting · ticket pass/fail definition · the canary, `drafted_by
 `sensitive_strings` fields · v1 and v3 side by side in the explorer · the test-set guards in the
 CLI · CI-only published numbers · branch protection on `main` · the demo's Turnstile check and
 per-visitor limit · "Bring your own tickets" via `--data` · the `--max-cost` spend limit on paid
-runs · agreement figures computed from committed label and calibration files.
+runs · the automated second pass over every label (D12) · agreement figures computed from
+committed calibration files, and the second pass's counts from committed label files.

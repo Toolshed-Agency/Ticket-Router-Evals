@@ -39,8 +39,14 @@ Everything still to do. Items leave this file when they ship. As of 2026-11-20.
 - Phase 3 plan, first step: about 30 boundary cases with the labels they should get, approved by
   Ajlal before anyone labels. A test checks that the guide's worked examples agree with them, and
   they double as labelling practice (CLAUDE.md, "Writing rule documents", rule 2).
-- Phase 3, before labelling: both labellers read and accept the labelling guide; the split script
-  (seeded, stratified) assigns tickets to dev and test at the freeze and writes `data/VERSION`.
+- Phase 3: the automated second pass (spec D12). Its brief, and a folder holding only the
+  labelling guide, the policy and the ticket inputs, so it never sees the scenario list or the
+  first labels; its labels and brief are committed in `data/labels/`. It starts from a fresh
+  context, never a continuation or copy of a session that has read the scenario list. The guide
+  speaks to the labeller, so the brief tells the second pass to label as the guide says and that
+  the re-check section is not its job.
+- Phase 3: the split script (seeded, stratified) assigns tickets to dev and test at the freeze and
+  writes `data/VERSION`.
   `data/scenarios.csv` is not read while tuning: its premises summarise every ticket.
 - Phase 4: the file format for re-run coverage verdicts after a gold `issues` correction (spec
   section 7, corrections), committed beside the runs it updates.
@@ -68,7 +74,7 @@ Everything still to do. Items leave this file when they ship. As of 2026-11-20.
   better becomes the development model, the other the judge candidate (S11).
 - Phase 7: check whether Gemma 4 26B's reasoning can be turned down (28 s a call in the probe).
 - Phase 9: the website renders the reader-facing docs (`docs/methodology.md`, the labeling guide,
-  the agreement report) from those same Markdown files, not copies, so the site and GitHub show
+  the labelling report) from those same Markdown files, not copies, so the site and GitHub show
   one source. No separate documentation site (MkDocs, Zensical): GitHub renders the engineering
   docs, and the harness is copied, not installed, so it needs no API reference site.
 - Phase 9: re-measure the demo's CPU with the real v3 code; decide whether the demo gets its own

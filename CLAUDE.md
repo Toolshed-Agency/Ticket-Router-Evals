@@ -140,7 +140,7 @@ maintainer caught the first; audits once everything was written found the rest (
 | Where | What | Public |
 |---|---|---|
 | `CLAUDE.md` | This file: what the project is, the rules, how we work | yes |
-| `docs/` | Labeling guide, methodology, agreement report, written for readers of the site | yes |
+| `docs/` | Labeling guide, methodology, labelling report, written for readers of the site | yes |
 | `docs/engineering/specs/` | Design specs (superpowers writes here, not to `docs/superpowers/`) | yes |
 | `docs/engineering/plans/` | One plan per phase | yes |
 | `docs/engineering/OPEN-WORK.md` | Everything still to do; items leave when they ship | yes |

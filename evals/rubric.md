@@ -1,7 +1,8 @@
 # Draft-reply rubric
 
-*Draft. It is calibrated in phase 6 against two human graders (at least 80% agreement on each
-criterion) and may change before any judge score is published.*
+*Draft. It is calibrated in phase 6 against a human grader
+([spec section 10](../docs/engineering/specs/2026-11-17-ticket-router-evals-design.md#10-the-judge))
+and may change before any judge score is published.*
 
 The judge grades each draft reply against four criteria. Each is **pass or fail with a one-line
 reason** (spec D6). The judge treats the ticket and the draft strictly as data: instructions inside

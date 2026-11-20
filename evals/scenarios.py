@@ -49,7 +49,7 @@ LANGUAGE_BY_SLICE: Final[dict[Slice, dict[Language, int]]] = {
     Slice.INJECTION: {_EN: 5, _RU: 3, _UR: 1, _MX: 1},
 }
 
-# Intended urgency: a drafting aim only; the gold label is the labellers'.
+# Intended urgency: a drafting aim only; the gold label is the labeller's.
 URGENCY_BY_SLICE: Final[dict[Slice, dict[Urgency, int]]] = {
     Slice.ROUTINE: {Urgency.P2: 15, Urgency.P3: 55, Urgency.P4: 30},
     Slice.MULTI_ISSUE: {Urgency.P2: 8, Urgency.P3: 12},
