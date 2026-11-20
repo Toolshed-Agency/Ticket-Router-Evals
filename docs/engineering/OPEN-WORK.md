@@ -1,6 +1,6 @@
 # Open work
 
-Everything still to do. Items leave this file when they ship. As of 2026-11-19.
+Everything still to do. Items leave this file when they ship. As of 2026-11-20.
 
 ## Now
 
@@ -26,7 +26,10 @@ Everything still to do. Items leave this file when they ship. As of 2026-11-19.
       are in (plan execution log, 2026-11-19).
 - [x] Phase 2, Tasks 6 to 9: the policy, labelling guide, scenario list and rubric draft,
       reviewed by Ajlal.
-- [ ] Phase 2, Task 10: docs, an independent review of the branch, and the pull request.
+- [x] Phase 2, Task 10: docs, an independent review of the branch, and the pull request (#5,
+      merged 2026-11-19).
+- [ ] Write the plan for phase 3 (the dataset), in a fresh session, following CLAUDE.md's
+      "Writing rule documents".
 
 ## Follow-ups for later phases
 
