@@ -9,6 +9,9 @@ Everything still to do. Items leave this file when they ship. As of 2026-11-20.
       [specs/2026-11-17-ticket-router-evals-design.md](specs/2026-11-17-ticket-router-evals-design.md).
 - [ ] Send the open questions (spec section 15) to the people who own them, plus one more: secret
       scanning and push protection switched on for the repo by an org admin.
+- [ ] Allow only merge commits on the repo (CLAUDE.md, "One pull request at a time"). Like secret
+      scanning, it needs a repo admin: the Maintain role cannot change it (the API refused,
+      2026-11-20).
 - [x] Write the plan for phase 1: [plans/2026-11-18-phase-1-foundation.md](plans/2026-11-18-phase-1-foundation.md).
 - [x] Phase 1, Tasks 1 to 5: the uv project, Ruff, mypy, pytest, the boundary test, secret checks
       and `ci.yml`.
@@ -33,6 +36,9 @@ Everything still to do. Items leave this file when they ship. As of 2026-11-20.
 
 ## Follow-ups for later phases
 
+- Phase 3 plan, first step: about 30 boundary cases with the labels they should get, approved by
+  Ajlal before anyone labels. A test checks that the guide's worked examples agree with them, and
+  they double as labelling practice (CLAUDE.md, "Writing rule documents", rule 2).
 - Phase 3, before labelling: both labellers read and accept the labelling guide; the split script
   (seeded, stratified) assigns tickets to dev and test at the freeze and writes `data/VERSION`.
   `data/scenarios.csv` is not read while tuning: its premises summarise every ticket.
@@ -76,6 +82,14 @@ Everything still to do. Items leave this file when they ship. As of 2026-11-20.
   to `main` can cancel each other's CI runs; CI jobs have no display names; probe scripts send the
   prompt file's header comment; the phase 1 plan's execution log is empty and it cites internal
   asks; no uv version pin for laptops (a sticky choice).
+
+## Possible add-ons
+
+Not planned. Each would be its own short pull request, if taken up later.
+
+- CodeQL code scanning (a GitHub Actions workflow on pushes and pull requests) and a
+  `SECURITY.md` that says how to report a vulnerability privately. Offered and deferred on
+  2026-11-20. Confirm the free-tier limits before switching anything on.
 
 ## Questions found while reading the scope
 
