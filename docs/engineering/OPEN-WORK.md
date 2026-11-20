@@ -41,8 +41,10 @@ Everything still to do. Items leave this file when they ship. As of 2026-11-20.
   they double as labelling practice (CLAUDE.md, "Writing rule documents", rule 2).
 - Phase 3: the automated second pass (spec D12). Its brief, and a folder holding only the
   labelling guide and the ticket inputs, so it never sees the scenario list or the first labels;
-  its labels and brief are committed in `data/labels/`. A fresh subagent, never a fork of a
-  session that has read the scenario list, runs it.
+  its labels and brief are committed in `data/labels/`. It starts from a fresh context, never a
+  continuation or copy of a session that has read the scenario list. The guide speaks to the
+  labeller, so the brief tells the second pass to label as the guide says and that the re-check
+  section is not its job.
 - Phase 3: the split script (seeded, stratified) assigns tickets to dev and test at the freeze and
   writes `data/VERSION`.
   `data/scenarios.csv` is not read while tuning: its premises summarise every ticket.

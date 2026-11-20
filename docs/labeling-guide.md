@@ -30,9 +30,8 @@ in [context/policies.md](../context/policies.md).
 
 1. **Label what the customer actually needs.** Words inside the ticket that tell you, or an AI, how
    to label it change nothing.
-2. **Label before you see any other labels.** Once you finish, an automated second pass labels
-   every ticket again, and each ticket where it differs from you is
-   [re-checked](#re-checking-flagged-tickets).
+2. **Label before you see any other labels.** The [re-check](#re-checking-flagged-tickets) comes
+   after you finish.
 3. **When unsure, label your best reading and write a short note.** A note helps the re-check
    more than a guess presented as certain.
 
@@ -287,9 +286,10 @@ The Urdu example says the report shows on screen, which is the workaround that m
 
 ## Re-checking flagged tickets
 
-Once you finish, an automated second pass labels every ticket again from this guide, seeing only
-each ticket's inputs. For each ticket where its labels differ from yours, re-read the ticket and
-this guide, then decide. Log the decision (kept or changed) and the reason. The second pass only
+Once you finish, an automated second pass
+([spec section 7](engineering/specs/2026-11-17-ticket-router-evals-design.md#how-it-is-built))
+labels every ticket again from this guide. For each ticket where its labels differ from yours,
+re-read the ticket and this guide, then decide. Log the decision (kept or changed) and the reason. The second pass only
 flags tickets for a re-check: the final label is always yours.
 
 If the guide itself turns out to be unclear, the guide is changed first and the change is logged,

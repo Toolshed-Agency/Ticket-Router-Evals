@@ -50,8 +50,8 @@ Gemini and Airtable) in code, so it costs nothing to run and anyone can reproduc
 **Goals (acceptance criteria).**
 - Public repo, MIT (code) and CC BY 4.0 (data); the README (section 12) quickstart works from a
   clean clone in under 10 minutes.
-- 200 tickets, each labelled by one person and re-checked by an automated second pass (D12); test
-  set untouched until final runs.
+- 200 tickets, each labelled by one person, with an automated second pass flagging tickets to
+  re-check (D12); test set untouched until final runs.
 - v1, v2 and v3 scored on dev and test; v3 compared on at least 3 models (3 to 4 as scoped, plus
   an optional free Workers AI model).
 - Every metric in section 8 computed; the judge calibrated against at least 40 human-graded
@@ -118,7 +118,7 @@ databases, paid hosting. Rebuilding the original Make and Airtable version.
 
 | Id | Decision | Alternatives considered | Why |
 |---|---|---|---|
-| D12 | **One person labels every ticket and grades every calibration draft; an automated second pass re-checks the labels** (2026-11-20). The second pass labels every ticket again in a fresh context that holds only the labelling guide and the ticket's inputs. The labeller sees its labels only after finishing, re-checks every ticket where they differ, and decides; the final label is always the labeller's. No labelling agreement rate is published, only how many tickets the second pass flagged and how many labels changed. The judge is calibrated against the one grader, with no human-vs-human ceiling. | A second person; the labeller labelling twice, weeks apart, to publish their agreement with themselves; publishing agreement with the second pass | No one else is free to label or grade. The second pass still catches slips, and an agreement figure between a person and an automated pass would not measure what readers expect one to |
+| D12 | **One person labels every ticket, reviews the Urdu, Roman Urdu and mixed tickets, and grades every calibration draft; an automated second pass flags tickets for that person to re-check** (2026-11-20). The second pass labels every ticket again in a fresh context that holds only the labelling guide and the ticket's inputs. The labeller sees the second pass's labels only after finishing, re-checks every ticket where they differ, and decides; the final label is always the labeller's. No labelling agreement rate is published, only how many tickets the second pass flagged and how many of them changed. The judge is calibrated against the one grader's grades, given once, with no human-vs-human ceiling. | A second person; the labeller labelling twice, weeks apart, to publish their agreement with themselves; publishing agreement with the second pass | No one else is free to label or grade. The second pass still catches slips, and an agreement figure between a person and an automated pass would not measure what readers expect one to |
 
 ### Language rules (extends D2)
 
@@ -175,7 +175,9 @@ Ticket-Router-Evals/
 ```
 
 The scope's folders (`data/`, `context/`, `docs/`, `router/`, `evals/`, `results/`, `site/`,
-`.github/workflows/eval.yml`) and files keep their names so the repo reads as the scope describes.
+`.github/workflows/eval.yml`) and files keep their names so the repo reads as the scope describes,
+except `docs/agreement-report.md`, which becomes `docs/labeling-report.md` because it holds no
+agreement rate (D12).
 Added: `harness/` (D1), `demo/`, `tests/`, the extra `data/` files (sections 7 and 11),
 `evals/cli.py`, `evals/calibration/` (section 10), `docs/design/` (section 12),
 `docs/engineering/`, and the `ci.yml`, `eval-comment.yml` and `deploy.yml` workflows. Packaging the
@@ -415,7 +417,7 @@ v2 and v3 are always compared on the same ~142 dev tickets. The methodology page
    [re-check section](../../labeling-guide.md#re-checking-flagged-tickets) describes, and logged
    in `data/disagreements.jsonl` with the decision and the reason. No agreement rate is published:
    `docs/labeling-report.md` and the site give how many tickets the second pass flagged and how
-   many labels changed, computed from the committed files by `build-site`, never typed in.
+   many of them changed, computed from the committed files by `build-site`, never typed in.
 8. **Freeze and lock.** Dataset version 1.0, written in `data/VERSION`. `data/test.lock` holds
    the SHA-256 of the test file (line endings normalised); CI fails if it changes. Freeze happens **before any prompt tuning**.
 
@@ -630,16 +632,16 @@ ticket-router-evals.toolshedservices.com (an open decision). Fully public, no lo
 4. **Methodology:** how the dataset was built and labelled (one labeller and an automated second
    pass, D12), metric definitions, judge calibration and judge-vs-human agreement, the few-shot
    exclusion (~142 scored dev tickets), and honest limitations (small slices, tuned on the
-   development model, LLM-drafted tickets, one labeller and one grader). If v3 is only slightly better than v1 or v2, this page and the scorecard paragraph
-   say so and explain why.
+   development model, LLM-drafted tickets, one labeller and one grader). If v3 is only slightly
+   better than v1 or v2, this page and the scorecard paragraph say so and explain why.
 5. **Work with us:** "Want this for your AI agent?", with links to toolshedservices.com and a
    booking link.
 
 - **Numbers come only from committed files.** Pages take numbers only from the generated data
   files. The numbers-match test checks the data files against a fresh `rescore` of the results
-  files, checks the second pass's counts and the judge's agreement figures against the committed
-  label and calibration files, and
-  checks that every number rendered in the built pages comes from those data files.
+  files, checks the counts of flagged and changed tickets and the judge's agreement figures
+  against the committed label and calibration files, and checks that every number rendered in the
+  built pages comes from those data files.
 - **Which run is shown.** Only `source: ci` runs. For the test split, the first test run of each
   final version (per model) is the headline; later test runs are listed, never substituted. For
   dev, the latest CI run of that version. Router versions are frozen at the launch tag; a later
@@ -755,8 +757,8 @@ and `evals/`.
 
 ## 17. Differences from the scope of work
 
-Everything the scope of work asks for is in this spec. This section lists every place the spec
-changes, interprets or adds to it, so nothing is a surprise.
+Everything the scope of work asks for is in this spec, apart from the changes this section lists.
+It lists every place the spec changes, interprets or adds to the scope, so nothing is a surprise.
 
 ### Changed or interpreted
 
@@ -782,7 +784,7 @@ changes, interprets or adds to it, so nothing is a surprise.
 | Judge scores 1 to 5 on a rubric | Pass/fail per criterion with reasons; 1 to 5 derived (1 + passes) | People agree more on yes/no; failures explain themselves | D6 |
 | Under 80% agreement: fix the rubric before trusting the judge | Bar applied per criterion; at most two revisions on fresh drafts; a criterion still under is published as "judge not calibrated", left out of "safe to send", and does not block launch | An honest outcome if the bar is never reached | §10 |
 | Judge calibrated on 40 human-graded drafts | 40, plus up to 40 for revisions and about 30 for other model families | Fresh drafts after a revision; per-family check | §10 |
-| Two people label every ticket independently; disagreements logged and resolved; the agreement rate published (also an acceptance criterion) | One person labels every ticket; an automated second pass labels them again, and every difference is re-checked and logged. No agreement rate: how many tickets were flagged and how many labels changed is published instead | No second person is free | D12, §7 |
+| Two people label every ticket independently; disagreements logged and resolved; the agreement rate published (also an acceptance criterion) | One person labels every ticket; an automated second pass labels them again, and every difference is re-checked and logged. No agreement rate: how many tickets were flagged and how many of them changed is published instead | No second person is free | D12, §7, §12 |
 | Two people grade the 40 calibration drafts | One person grades them; judge-vs-human agreement is reported against that grader with the same bar, and there is no human-vs-human ceiling | No second person is free | D12, §10 |
 | CI runs on pull requests touching `router/` or prompts | Also on `context/`, `evals/`, `harness/` and `data/` | Those change the scores too | §11 |
 | CI runs the dev set | The pull-request gate runs v3 on the development model plus changed versions, labels only; manual runs do the full evaluation with the judge and repeats | Free-tier quota on every pull request | §11 |
@@ -792,12 +794,12 @@ changes, interprets or adds to it, so nothing is a surprise.
 | API keys in `.env` and GitHub secrets | Plus the demo Worker's Cloudflare secrets | The demo needs its key at Cloudflare | §3 |
 | One public repo under the Toolshed GitHub org, `ticket-router-evals` | `Toolshed-Agency/Ticket-Router-Evals`: the same name with capitals; GitHub links work either way | The repo was created with that capitalisation | §3 |
 | Every router implements `predict(ticket) -> RouterOutput` | Same, plus a `name` and an `InvalidOutput` error for unreadable answers | Names each run; lets a router report an unreadable answer instead of guessing | §6 |
-| The scope's folder layout | Same names, plus `harness/`, `demo/`, `tests/`, extra `data/` files, `evals/cli.py`, `evals/calibration/`, `docs/design/`, `docs/engineering/`, `ci.yml`, `eval-comment.yml`, `deploy.yml` | D1 boundary; demo code; agreement figures from committed files; checks | §5 |
+| The scope's folder layout | Same names, plus `harness/`, `demo/`, `tests/`, extra `data/` files, `evals/cli.py`, `evals/calibration/`, `docs/design/`, `docs/engineering/`, `ci.yml`, `eval-comment.yml`, `deploy.yml`. `docs/agreement-report.md` becomes `docs/labeling-report.md` | D1 boundary; demo code; agreement figures from committed files; checks. The report holds no agreement rate (D12) | §5 |
 | Three CLI commands | Plus `rescore`, `validate-data`, `--data`, `--router <module>:<Class>`, `--confirm-test`, `--repeat`, `--switch`, `--limit`, `--no-judge`, `--max-cost` | Verification without keys; bring your own router and tickets; test-set guard; spend limit | §6 |
 | The only backend is one small Worker; no databases | One Worker, plus a Durable Object counter (today's count and hashed addresses, cleared daily) and Turnstile | An exact daily cap needs shared state; no ticket text or accounts are stored | S9, §13 |
 | Visitors paste a ticket and see v3's output | Off for visitors in the EEA, Switzerland and the UK, and when the country is unknown | Gemini's free terms | D9 |
 | Submitted text is never stored | Never stored or logged by us; the free tier's data-use terms are stated next to the box | Google may use free-tier content | D8 |
-| Open decisions before kickoff | Still open; none blocks phases 1, 2 or 4 | Work starts while they are answered | §15 |
+| Open decisions before kickoff | Who labels and who reviews the Urdu tickets: answered by D12. The rest are still open; none blocks phases 1, 2 or 4 | Work starts while they are answered | D12, §15 |
 
 ### Added beyond the scope
 
