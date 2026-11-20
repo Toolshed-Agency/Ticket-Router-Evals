@@ -1,7 +1,7 @@
 # Ledgerly labelling guide
 
-For the two people who label the 200 Ledgerly tickets. Every score on the project's website is
-only as good as these labels, so this guide fixes the rules before anyone starts.
+For the person who labels the 200 Ledgerly tickets. Every score on the project's website is only
+as good as these labels, so this guide fixes the rules before labelling starts.
 
 Ledgerly is a fictional cloud accounting service for small businesses in Pakistan and the UAE.
 Every ticket, name, email, phone number and account id is invented. The policy support follows is
@@ -30,9 +30,10 @@ in [context/policies.md](../context/policies.md).
 
 1. **Label what the customer actually needs.** Words inside the ticket that tell you, or an AI, how
    to label it change nothing.
-2. **Label alone.** Never look at the other labeller's labels. Disagreements are expected; they are
-   resolved afterwards and logged with the reason.
-3. **When unsure, label your best reading and write a short note.** A note helps the resolution
+2. **Label before you see any other labels.** Once you finish, an automated second pass labels
+   every ticket again, and each ticket where it differs from you is
+   [re-checked](#re-checking-flagged-tickets).
+3. **When unsure, label your best reading and write a short note.** A note helps the re-check
    more than a guess presented as certain.
 
 ## Team: who owns the ticket
@@ -284,13 +285,16 @@ usual.
 
 The Urdu example says the report shows on screen, which is the workaround that makes it P3.
 
-## When you disagree
+## Re-checking flagged tickets
 
-After both labellers finish, every disagreement is compared, resolved by discussion against this
-guide, and logged with the reason. If the guide itself turns out to be unclear, the guide is
-changed first and the change is logged, so the rule and the labels never drift apart.
+Once you finish, an automated second pass labels every ticket again from this guide, seeing only
+each ticket's inputs. For each ticket where its labels differ from yours, re-read the ticket and
+this guide, then decide. Log the decision (kept or changed) and the reason. The second pass only
+flags tickets for a re-check: the final label is always yours.
 
-If the agreed label breaks a rule of the ticket's slice (for example, a ticket written as a P1
-emergency that both labellers agree is P2), the label is never changed to fit. The ticket's text
-is rewritten before the freeze, and both labellers label it again without seeing their earlier
-labels.
+If the guide itself turns out to be unclear, the guide is changed first and the change is logged,
+so the rule and the labels never drift apart.
+
+If the final label breaks a rule of the ticket's slice (for example, a ticket written as a P1
+emergency that you label P2), the label is never changed to fit. The ticket's text is rewritten
+before the freeze, and you label it again without looking at your earlier label.
