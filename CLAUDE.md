@@ -12,10 +12,10 @@ result visible.
 traceable to a committed results file. Credibility is the product. A number that is fudged, typed
 in by hand or cannot be reproduced destroys it.
 
-Status as of 2026-11-19: phase 1 (foundation and probes) is merged. The project, its checks and CI
-are built; four of the five probes are done (the Pages domain probe waits for the subdomain and a
-DNS record). Phase 2 (contracts and guides) is built on `phase-2/contracts`: the contracts, the
-policy, the labelling guide, the scenario list and the rubric draft, in final review. The
+Status as of 2026-11-20: phases 1 and 2 are merged; phase 3 (the dataset) is next, and its plan
+is not written yet. Phase 1 built the project, its checks and CI, and four of the five probes (the
+Pages domain probe waits for the subdomain and a DNS record). Phase 2 added the contracts, the
+policy, the labelling guide, the scenario list and the rubric draft. The
 design spec is approved and updated with the probe results and the phase 2 contracts:
 [docs/engineering/specs/2026-11-17-ticket-router-evals-design.md](docs/engineering/specs/2026-11-17-ticket-router-evals-design.md).
 Phase 1 plan: [docs/engineering/plans/2026-11-18-phase-1-foundation.md](docs/engineering/plans/2026-11-18-phase-1-foundation.md).
@@ -49,7 +49,7 @@ repo. Where they conflict, this file wins.
 
 | Tier | Examples | Do |
 |---|---|---|
-| Sticky | dependencies and version pins, schemas, label definitions and gold labels, metric definitions, CI thresholds, model choices, anything public-facing, anything destructive | Stop. Give options with a recommendation. Wait. |
+| Sticky | dependencies and version pins, schemas, label definitions and gold labels, policy and rubric wording, metric definitions, CI thresholds, model choices, anything public-facing, anything destructive | Stop. Give options with a recommendation. Wait. |
 | Shaped | a module's internals, a helper, file placement | Do it; flag it on its own line |
 | Trivial | naming, comments | Do it |
 
@@ -100,6 +100,40 @@ plus these project rules:
 - Metric tests use hand-computed fixtures written from the metric's definition, not from the code.
   Break the code once to watch a new test fail.
 - Evidence before claims: run the command, read the output, then say it passes.
+
+## Writing rule documents
+
+Rule documents decide a label or a grade: the policy (`context/policies.md`), the labelling guide
+(`docs/labeling-guide.md`) and the rubric (`evals/rubric.md`), with the approved tables their
+rules come from (the spec's decisions and each phase plan's). Every score depends on them, so they
+get the same discipline as code. In phase 2 these documents and the scenario list were drafted
+one after another, late in a long session, and held about 100 contradictions between them. The
+maintainer caught the first; audits once everything was written found the rest (LESSONS,
+2026-11-19).
+
+1. **One home for each definition, and as few copies as possible.** The homes: allowed values in
+   the contracts (`router/schema.py`, `evals/dataset.py`, published as JSON Schemas); what each
+   label means in the labelling guide; support rules and numbers in the policy; grading in the
+   rubric. Every other document, the spec and code comments included, links to the home instead
+   of rewording it. Decision tables (the spec's decisions and its differences from the scope of
+   work, and each plan's) record approvals; they are not copies kept in sync.
+   Where a copy cannot be a link (the spec lists the allowed values; the rubric's examples quote
+   the policy's times), a test in `tests/test_documents.py` checks it against its home.
+2. **Cases before rules.** Before writing a rule document, write about 30 boundary cases with the
+   label or grade each should get, and have the maintainer approve them: those are the real
+   decisions. Then write rules that produce them. The cases are committed, and a test checks that
+   the document's worked examples agree with them. A later change to a rule updates the cases it
+   affects first.
+3. **One narrow, fresh reviewer per document, at draft time.** As each draft is finished, a
+   reviewer who did not write it gets one brief: check this draft against these named files and
+   list the conflicts. This replaces broad audits of all the rule documents once they are
+   written; the review of the whole branch at the end of a phase stays.
+4. **A fresh session for each phase,** loading superpowers' executing-plans and
+   test-driven-development skills at the start. Drafts written late in a long session, after its
+   earlier context has been summarised, pick up stale text from earlier work.
+5. **No silent decisions.** Label definitions, policy wording and rubric wording are sticky
+   (Decision tiers): a rule choice that is not already in an approved table is asked.
+   Superpowers' "rulings, not stalls" never covers them.
 
 ## Docs
 

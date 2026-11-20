@@ -2,7 +2,8 @@
 
 *Fictional. Ledgerly is an invented company for the Ticket Router Evals project; any resemblance to
 a real business is accidental. Draft replies are graded against this document: a reply may only
-promise what it allows.*
+promise what it allows. The urgency levels P1 to P4 are defined in the
+[labelling guide](../docs/labeling-guide.md#urgency-how-fast-it-needs-a-first-response).*
 
 Ledgerly is cloud accounting software for small businesses in Pakistan and the UAE. This policy
 tells support agents what they can say and offer.
@@ -48,12 +49,12 @@ tells support agents what they can say and offer.
 
 Every ticket gets a first response within the time for its urgency level:
 
-| Urgency | Meaning | First response |
-|---|---|---|
-| P1 | An outage, data loss or a security incident | Within 1 hour, any day |
-| P2 | A problem that stops the customer's work with no workaround; money taken in error; or a security concern short of an incident, such as a phishing email nobody acted on | Within 4 business hours |
-| P3 | A problem with a workaround; a "how do I" or "where is" question; a question or request about the customer's own charges, invoices or refunds; buying now | Within 1 business day |
-| P4 | A question about what Ledgerly offers, allows or plans; a feature request; feedback; an early sales enquiry | Within 3 business days |
+| Urgency | First response |
+|---|---|
+| P1 | Within 1 hour, any day |
+| P2 | Within 4 business hours |
+| P3 | Within 1 business day |
+| P4 | Within 3 business days |
 
 When support passes a ticket to another team, that team replies within the same time, counted from
 when the ticket was passed on.

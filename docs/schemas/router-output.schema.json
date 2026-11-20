@@ -1,7 +1,7 @@
 {
   "$defs": {
     "Language": {
-      "description": "The language the customer wrote in (spec D2).",
+      "description": "The language the customer wrote in. Each label is defined in docs/labeling-guide.md.",
       "enum": [
         "en",
         "ur",
@@ -12,7 +12,7 @@
       "type": "string"
     },
     "Team": {
-      "description": "The primary owner of a ticket.",
+      "description": "The primary owner of a ticket. Each team is defined in docs/labeling-guide.md.",
       "enum": [
         "billing",
         "technical",
@@ -25,7 +25,7 @@
       "type": "string"
     },
     "Urgency": {
-      "description": "P1 is an outage, data loss or a security incident; respond within 1 hour.",
+      "description": "How urgent a ticket is. Each level is defined in docs/labeling-guide.md.",
       "enum": [
         "P1",
         "P2",

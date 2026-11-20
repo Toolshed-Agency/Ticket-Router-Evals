@@ -18,7 +18,7 @@ StrippedStr = Annotated[str, StringConstraints(strip_whitespace=True)]
 
 
 class Team(StrEnum):
-    """The primary owner of a ticket."""
+    """The primary owner of a ticket. Each team is defined in docs/labeling-guide.md."""
 
     BILLING = "billing"
     TECHNICAL = "technical"
@@ -29,7 +29,7 @@ class Team(StrEnum):
 
 
 class Urgency(StrEnum):
-    """P1 is an outage, data loss or a security incident; respond within 1 hour."""
+    """How urgent a ticket is. Each level is defined in docs/labeling-guide.md."""
 
     P1 = "P1"
     P2 = "P2"
@@ -38,7 +38,7 @@ class Urgency(StrEnum):
 
 
 class Language(StrEnum):
-    """The language the customer wrote in (spec D2)."""
+    """The language the customer wrote in. Each label is defined in docs/labeling-guide.md."""
 
     EN = "en"
     UR = "ur"
