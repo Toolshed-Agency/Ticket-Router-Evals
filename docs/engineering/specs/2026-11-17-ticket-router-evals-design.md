@@ -1,7 +1,7 @@
 # Ticket Router Evals: design spec
 
-Date: 2026-11-17 · Updated: 2026-11-19 (phase 1 probe results; phase 2 contracts) · Supersedes:
-nothing (first spec)
+Date: 2026-11-17 · Updated: 2026-11-20 (phase 1 probe results; phase 2 contracts; label meanings
+defined only in the labelling guide) · Supersedes: nothing (first spec)
 
 This is the whole-project design. It records what we are building, why, every decision made so
 far with the alternatives considered, and what is left to the builder. Each phase gets its own
@@ -264,7 +264,7 @@ it; it counts as wrong on every field (section 8).
 ```
 
 The example is P2, not P1: invoicing is down for the whole account, but the ticket gives no
-deadline (section 7, the P1 boundary). It escalates because the customer is writing for the third
+deadline (the labelling guide's P1 boundary). It escalates because the customer is writing for the third
 time about the same problem, with 2 earlier tickets, and is clearly frustrated.
 
 The JSON Schemas of the ticket record, the router output and the results file are published in
@@ -294,13 +294,17 @@ The JSON Schemas of the ticket record, the router output and the results file ar
 
 | Field | Type and allowed values |
 |---|---|
-| `team` | The primary owner of the ticket: billing, technical, sales, refunds, account_security, other |
-| `urgency` | P1, P2, P3, P4 (P1 = outage, data loss or security incident; respond within 1 hour) |
-| `escalate_to_human` | boolean; must be true for P1, legal threats, security, or genuine ambiguity |
+| `team` | one of `billing`, `technical`, `sales`, `refunds`, `account_security`, `other`: the ticket's primary owner |
+| `urgency` | one of `P1`, `P2`, `P3`, `P4` |
+| `escalate_to_human` | boolean: whether a person must handle the ticket |
 | `issues` | list of short strings capturing every issue in the ticket (multi-issue tickets list all); at least one |
-| `language` | en, ur, roman_ur, mixed: the language the customer wrote in |
+| `language` | one of `en`, `ur`, `roman_ur`, `mixed`: the language the customer wrote in |
 | `draft_reply` | the first response to the customer, in the customer's language, consistent with `context/policies.md` |
 | `reasoning` | one sentence on why it routed this way; shown on the website |
+
+What each team, urgency level and language means, and when a ticket must escalate, is defined
+once, in the [labelling guide](../../labeling-guide.md); the policy gives each urgency level's
+response time.
 
 The schema checks shape and allowed values only. The rule "P1 means escalate" is measured, not
 enforced: a predicted P1 without escalation counts in the rule-violations metric (section 8), so a
@@ -380,10 +384,8 @@ v2 and v3 are always compared on the same ~142 dev tickets. The methodology page
    defines every team and urgency level with boundary rules and examples, and settles at least:
    - billing vs refunds; technical vs account security; when "other" applies
    - which team is the primary owner of a multi-issue ticket
-   - the P1 boundary: an outage is a core function down for the whole account with a stated
-     reason it cannot wait (a deadline, month-end close, payroll day); the same failure with no
-     deadline, or one broken feature, is not P1. The scope's P1 examples are an outage during
-     month-end close and a suspected account takeover
+   - the P1 boundary. The scope's P1 examples are an outage during month-end close and a
+     suspected account takeover
    - escalation: the four mandatory cases, and whether repeat contact or anger escalates
    - whether customer tier or prior tickets change urgency
    - the language rules above; how to write `issues`
