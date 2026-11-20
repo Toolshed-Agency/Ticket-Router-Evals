@@ -288,13 +288,19 @@ The Urdu example says the report shows on screen, which is the workaround that m
 
 Once you finish, an automated second pass
 ([spec section 7](engineering/specs/2026-11-17-ticket-router-evals-design.md#how-it-is-built))
-labels every ticket again from this guide. For each ticket where its labels differ from yours,
-re-read the ticket and this guide, then decide. Log the decision (kept or changed) and the reason. The second pass only
-flags tickets for a re-check: the final label is always yours.
+labels every ticket again from this guide. It flags a ticket when its team, urgency, escalation
+or language differs from yours, or when it lists a different number of issues. Different wording
+of the same issues never flags a ticket on its own; on a flagged ticket you see its issues too.
+
+For each flagged ticket, re-read the ticket and this guide, then decide. Log the decision (kept or
+changed) and the reason. The second pass only flags tickets for a re-check: the final label is
+always yours.
 
 If the guide itself turns out to be unclear, the guide is changed first and the change is logged,
-so the rule and the labels never drift apart.
+so the rule and the labels never drift apart. After a change to the guide, the second pass labels
+every ticket again, and each new flag is re-checked.
 
 If the final label breaks a rule of the ticket's slice (for example, a ticket written as a P1
 emergency that you label P2), the label is never changed to fit. The ticket's text is rewritten
-before the freeze, and you label it again without looking at your earlier label.
+before the freeze; you label it again without looking at your earlier label, and the second pass
+labels it again too.

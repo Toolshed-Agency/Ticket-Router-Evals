@@ -118,7 +118,7 @@ databases, paid hosting. Rebuilding the original Make and Airtable version.
 
 | Id | Decision | Alternatives considered | Why |
 |---|---|---|---|
-| D12 | **One person labels every ticket, reviews the Urdu, Roman Urdu and mixed tickets, and grades every calibration draft; an automated second pass flags tickets for that person to re-check** (2026-11-20). The second pass labels every ticket again in a fresh context that holds only the labelling guide and the ticket's inputs. The labeller sees the second pass's labels only after finishing, re-checks every ticket where they differ, and decides; the final label is always the labeller's. No labelling agreement rate is published, only how many tickets the second pass flagged and how many of them changed. The judge is calibrated against the one grader's grades, given once, with no human-vs-human ceiling. | A second person; the labeller labelling twice, weeks apart, to publish their agreement with themselves; publishing agreement with the second pass | No one else is free to label or grade. The second pass still catches slips, and an agreement figure between a person and an automated pass would not measure what readers expect one to |
+| D12 | **One person labels every ticket, reviews the Urdu, Roman Urdu and mixed tickets, and grades every calibration draft; an automated second pass flags tickets for that person to re-check** (2026-11-20). The second pass labels every ticket again in a fresh context that holds only the labelling guide, the policy it refers to, and the ticket's inputs. The labeller sees the second pass's labels only after finishing, re-checks every ticket where they differ (team, urgency, escalation or language, or the number of issues; never the issues' wording alone), and decides; the final label is always the labeller's. The second pass runs again on any ticket rewritten to fit its slice, and on every ticket after the guide changes. No labelling agreement rate is published, only how many tickets the second pass flagged and how many of them changed. The judge is calibrated against the one grader's grades, given once, with no human-vs-human ceiling. | A second person; the labeller labelling twice, weeks apart, to publish their agreement with themselves; publishing agreement with the second pass | No one else is free to label or grade. The second pass still catches slips, and an agreement figure between a person and an automated pass would not measure what readers expect one to |
 
 ### Language rules (extends D2)
 
@@ -411,8 +411,9 @@ v2 and v3 are always compared on the same ~142 dev tickets. The methodology page
 5. **Native-speaker review** of every Urdu, Roman Urdu and mixed ticket.
 6. **One labeller, then an automated second pass (D12).** The labeller sees each ticket's inputs
    only. The second pass then labels every ticket again in a fresh context that holds only the
-   labelling guide and the inputs, never the scenario list or the first labels. Both sets of
-   labels are kept in `data/labels/`, with the second pass's brief beside its labels.
+   labelling guide, the policy it refers to, and the inputs, never the scenario list or the first
+   labels. Both sets of labels are kept in `data/labels/`, with the second pass's brief beside its
+   labels.
 7. **Re-check.** Every ticket where the two differ is re-checked as the labelling guide's
    [re-check section](../../labeling-guide.md#re-checking-flagged-tickets) describes, and logged
    in `data/disagreements.jsonl` with the decision and the reason. No agreement rate is published:
