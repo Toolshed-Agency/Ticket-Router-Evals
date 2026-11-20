@@ -235,7 +235,8 @@ different things.
   charge".
 - **Every distinct request counts,** including small ones at the end ("also, how do I add a
   user?").
-- **No personal data:** no names, account ids, or card, phone, ID or bank numbers.
+- **No personal data at all:** no names, account ids or phone numbers, nor any kind the policy
+  lists under [Personal data](../context/policies.md#personal-data).
 
 *Example:* "Card do dafa charge hua aur invoice pe company ka naam bhi ghalat hai" gives two
 issues:

@@ -27,14 +27,14 @@ or ask a customer not to share personal data again. Only what the reply does say
 
 **Fail** if the reply does any of these:
 - states something the policy contradicts
-- offers an action the policy forbids, such as support approving a refund, stating a price, asking
-  for a password, or moving account ownership over chat
+- offers an action the [policy](../context/policies.md) forbids
 - quotes the wrong process
 
 - *Pass* (duplicate charge, P2): "I've passed your duplicate charge to our refunds team. Once they
   confirm it, which takes up to 2 business days, the full amount is refunded and reaches your bank
   in 5 to 10 business days."
-- *Fail* (same ticket): "I've approved your refund." (Only the refunds team can approve refunds.)
+- *Fail* (same ticket): "I've approved your refund." (Breaks the policy's
+  [Refunds](../context/policies.md#refunds) section.)
 
 ### `matches_language`: the reply is in the customer's language and script
 
@@ -43,8 +43,9 @@ or ask a customer not to share personal data again. Only what the reply does say
 - Urdu script for `ur`
 - Roman Urdu for `roman_ur`
 - for `mixed`, the language of the issue that decided the team (the labelling guide's
-  [primary owner rule](../docs/labeling-guide.md#team-who-owns-the-ticket)). If that issue is itself written in both languages, or the ticket raises no issue,
-  either of the ticket's languages passes
+  [primary owner rule](../docs/labeling-guide.md#team-who-owns-the-ticket)). If that issue is
+  itself written in both languages, or the ticket raises no issue, either of the ticket's
+  languages passes
 
 English product words inside a Roman Urdu reply ("invoice", "login") are fine, and so are product
 names in Latin letters inside an Urdu-script reply.
@@ -70,8 +71,8 @@ certain.
 - promises a response quicker than the urgency level's response time
 
 - *Pass* (a P3 how-to question): "Our technical team will reply within 1 business day."
-- *Fail:* "Our engineers will have this fixed within the hour." (A first response is not a fix;
-  support never promises when a problem will be solved.)
+- *Fail:* "Our engineers will have this fixed within the hour." (Breaks the policy's
+  [Response times](../context/policies.md#response-times) section.)
 
 ### `appropriate_tone`: polite, calm and in proportion
 
@@ -95,22 +96,23 @@ certain.
 
 ## The score
 
-The judge never gives a 1 to 5 score directly. It is derived: **1 + the number of criteria
-passed**. A draft passing all four scores 5; a draft passing none scores 1.
-
-"Safe to send" means all four pass and the PII check (below) finds no leak. If a criterion misses
-the 80% calibration bar, it is left out of "safe to send" (spec section 10).
+The judge never gives a 1 to 5 score directly. The score and "safe to send" are computed from
+its verdicts, as the spec defines them in
+[section 8](../docs/engineering/specs/2026-11-17-ticket-router-evals-design.md#8-metrics) (and in
+[section 10](../docs/engineering/specs/2026-11-17-ticket-router-evals-design.md#10-the-judge) for a
+criterion that misses the calibration bar).
 
 ## Issue coverage (tickets with 2 or more gold issues)
 
 For each gold issue, the judge marks whether the predicted `issues` list covers it: covered or
-not covered, matching meaning rather than wording. Issue coverage is the share covered.
+not covered, matching meaning rather than wording. The issue coverage metric is computed from
+these marks ([spec section 8](../docs/engineering/specs/2026-11-17-ticket-router-evals-design.md#8-metrics)).
 
 ## Not judged here
 
-**Personal data** is checked by code, not by the judge. The draft may never contain any of the
-ticket's `sensitive_strings`. They are matched ignoring case, spaces and digit separators, so the
-judge never needs to see the sensitive values.
+**Personal data** is checked by code, not by the judge (the PII leak rate,
+[spec section 8](../docs/engineering/specs/2026-11-17-ticket-router-evals-design.md#8-metrics)), so
+the judge never needs to see the sensitive values.
 
 ## The judge's answer
 
