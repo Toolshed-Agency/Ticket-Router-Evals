@@ -7,6 +7,7 @@ link must resolve.
 """
 
 import re
+from collections import Counter
 from enum import StrEnum
 from pathlib import Path
 
@@ -27,7 +28,8 @@ SPEC = REPO_ROOT / "docs" / "engineering" / "specs" / "2026-11-17-ticket-router-
 # comes before their digit. A number written in words ("within the hour") is not caught.
 _FIGURE = r"\d+(?:[.,]\d+)*(?:%|am|pm)?"
 NUMBER = re.compile(rf"\b{_FIGURE}(?: to {_FIGURE})?(?: business)?(?: [A-Za-z]+)?")
-LINK = re.compile(r"\]\(([^)\s]+)\)")
+INLINE_LINK = re.compile(r"\]\(([^)\s]+)(?:\s+\"[^\"]*\")?\)")
+REFERENCE_LINK = re.compile(r"(?m)^ {0,3}\[[^\]]+\]:\s*(\S+)")
 
 
 def read(path: Path) -> str:
@@ -55,101 +57,166 @@ def section(text: str, heading: str) -> str:
     return "\n".join(lines[start:end])
 
 
-def table(text: str) -> dict[str, tuple[str, ...]]:
-    """A Markdown table's body rows by their first cell, bold marks and backticks removed."""
-    rows = {}
-    for line in text.split("\n"):
-        if line.startswith("|") and not re.fullmatch(r"[|\s:-]+", line):
-            cells = [c.strip().replace("**", "") for c in line.strip().strip("|").split("|")]
-            rows[cells[0].strip("`")] = tuple(cells[1:])
+def table(text: str) -> list[tuple[str, ...]]:
+    """The body rows of the Markdown tables in the text, in order, repeats kept. Bold marks are
+    removed, and backticks from the first cell."""
+    divider = re.compile(r"\|[|\s:-]+")
+    lines = text.split("\n")
+    rows = []
+    for i, line in enumerate(lines):
+        if not line.startswith("|") or divider.fullmatch(line):
+            continue
+        if i + 1 < len(lines) and divider.fullmatch(lines[i + 1]):
+            continue  # a header row
+        cells = [cell.strip().replace("**", "") for cell in line.strip().strip("|").split("|")]
+        rows.append((cells[0].strip("`"), *cells[1:]))
     return rows
 
 
-def values(enum: type[StrEnum]) -> set[str]:
-    return {member.value for member in enum}
+def values(enum: type[StrEnum]) -> list[str]:
+    return sorted(member.value for member in enum)
+
+
+def listed(text: str) -> list[str]:
+    """A comma-separated list of values, backticks removed, sorted, repeats kept."""
+    return sorted(value.strip().strip("`") for value in text.split(","))
+
+
+def without_fences(text: str) -> str:
+    return re.sub(r"(?ms)^```.*?^```", "", text)
 
 
 def prose(text: str) -> str:
     """The text without code blocks or code spans, where brackets are code, not links."""
-    return re.sub(r"`[^`\n]*`", "", re.sub(r"(?ms)^```.*?^```", "", text))
+    return re.sub(r"`[^`\n]*`", "", without_fences(text))
 
 
-def slug(heading: str) -> str:
-    """GitHub's anchor for a heading."""
-    text = heading.lstrip("#").strip().lower()
-    return re.sub(r"[^\w\- ]", "", text).replace(" ", "-")
+def anchors(document: Path) -> set[str]:
+    """GitHub's anchor for each heading: lowercased, punctuation dropped, spaces made hyphens;
+    a repeated heading gets -1, -2 and so on."""
+    seen: Counter[str] = Counter()
+    found = set()
+    for heading in re.findall(r"(?m)^#{1,6} .+$", without_fences(read(document))):
+        text = heading.lstrip("#").strip().lower()
+        base = re.sub(r"[^\w\- ]", "", text).replace(" ", "-")
+        found.add(f"{base}-{seen[base]}" if seen[base] else base)
+        seen[base] += 1
+    return found
+
+
+def response_times() -> dict[str, str]:
+    """Each urgency level's first-response time, as the policy states it."""
+    rows = table(section(read(POLICY), "## Response times"))
+    return {row[0]: numbers(row[1])[0] for row in rows}
+
+
+def pass_examples() -> dict[str, list[str]]:
+    """Each rubric criterion's pass examples, each on one line."""
+    parts = re.split(r"(?m)^(### .+)$", section(read(RUBRIC), "## The four criteria"))
+    examples = {}
+    for heading, body in zip(parts[1::2], parts[2::2], strict=True):
+        items = [item.split("\n\n")[0] for item in re.split(r"\n(?=- )", body)]
+        examples[heading] = [flat(i) for i in items if re.match(r"- \*{1,2}Pass\*{1,2}", i)]
+    return examples
 
 
 def test_the_guide_lists_the_contracts_values() -> None:
-    labels = table(section(read(GUIDE), "## How to label"))
+    given = {row[0]: row[1] for row in table(section(read(GUIDE), "## How to label"))}
     for label, enum in (("Team", Team), ("Urgency", Urgency), ("Language", Language)):
-        assert set(labels[label][0].split(", ")) == values(enum), label
+        assert listed(given[label]) == values(enum), label
 
 
 @pytest.mark.parametrize(
-    ("document", "heading"),
+    ("heading", "enum"),
     [
-        (GUIDE, "## Urgency: how fast it needs a first response"),
-        (POLICY, "## Response times"),
+        ("## Team: who owns the ticket", Team),
+        ("## Urgency: how fast it needs a first response", Urgency),
+        ("## Language: what the customer wrote in", Language),
     ],
-    ids=["guide", "policy"],
+    ids=["team", "urgency", "language"],
 )
-def test_each_urgency_table_has_one_row_per_level(document: Path, heading: str) -> None:
-    rows = table(section(read(document), heading))
-    assert [label for label in rows if re.fullmatch(r"P\d+", label)] == [u.value for u in Urgency]
+def test_the_guide_defines_each_value_once(heading: str, enum: type[StrEnum]) -> None:
+    rows = table(section(read(GUIDE), heading))
+    assert sorted(row[0] for row in rows) == values(enum)
+
+
+def test_the_policy_gives_one_response_time_per_level() -> None:
+    rows = table(section(read(POLICY), "## Response times"))
+    assert [row[0] for row in rows] == [level.value for level in Urgency]
+    assert all(len(numbers(row[1])) == 1 for row in rows), rows
 
 
 def test_the_specs_lists_of_values_match_the_contracts() -> None:
     spec = read(SPEC)
-    output = table(section(spec, "### Router output"))
+    output = {row[0]: row[1] for row in table(section(spec, "### Router output"))}
     for field, enum in (("team", Team), ("urgency", Urgency), ("language", Language)):
-        assert set(re.findall(r"`([^`]+)`", output[field][0])) == values(enum), field
+        assert sorted(re.findall(r"`([^`]+)`", output[field])) == values(enum), field
     record = flat(section(spec, "### Ticket record (one JSONL line)"))
     lists: tuple[tuple[str, type[StrEnum]], ...] = (
-        (r"`input\.channel`: ([^.`]+)\.", Channel),
-        (r"`input\.customer_tier`: ([^.`]+)\.", Tier),
+        (r"`input\.channel`: ([^.]+)\.", Channel),
+        (r"`input\.customer_tier`: ([^.]+)\.", Tier),
         (r"`meta\.slice`: exactly one primary slice per ticket \(([^)]+)\)", Slice),
     )
     for pattern, contract in lists:
-        listed = re.search(pattern, record)
-        assert listed is not None, f"not found: {pattern}"
-        assert set(listed.group(1).split(", ")) == values(contract), pattern
+        found = re.search(pattern, record)
+        assert found is not None, f"not found: {pattern}"
+        assert listed(found.group(1)) == values(contract), pattern
+
+
+def test_the_rubric_lists_the_contracts_languages() -> None:
+    criterion = "### `matches_language`: the reply is in the customer's language and script"
+    named = re.findall(r"`([^`]+)`", section(read(RUBRIC), criterion))
+    assert sorted(set(named)) == values(Language)
 
 
 def test_the_scenario_checks_know_every_kind_of_personal_data_in_the_policy() -> None:
-    listed = re.search(
+    found = re.search(
         r"never repeats (.+?) back to a customer", flat(section(read(POLICY), "## Personal data"))
     )
-    assert listed is not None, "the policy's list of personal data was not found"
-    kinds = {kind.strip().lower() for kind in re.split(r",| and | or ", listed.group(1))}
+    assert found is not None, "the policy's list of personal data was not found"
+    kinds = {kind.strip().lower() for kind in re.split(r",| and | or ", found.group(1))}
     assert all(any(stem in kind for stem in PII_KINDS) for kind in kinds), kinds
     assert all(any(stem in kind for kind in kinds) for stem in PII_KINDS)
 
 
-def test_every_number_a_rubric_pass_example_quotes_is_in_the_policy() -> None:
-    # A passing example must not teach the judge a time or amount the policy does not give.
-    rubric = read(RUBRIC)
-    items = [item.split("\n\n")[0] for item in re.split(r"\n(?=- )", rubric)]
-    passes = [flat(item) for item in items if re.match(r"- \*{1,2}Pass\*{1,2}", item)]
-    criteria = re.findall(r"(?m)^### ", section(rubric, "## The four criteria"))
-    assert len(passes) >= len(criteria) > 0, "a criterion's pass example was not found"
-    quoted = [n for example in passes for n in numbers(re.sub(r"\bP[1-4]\b", "", example))]
-    assert quoted, "no numbers found in the rubric's pass examples"
-    assert set(quoted) <= set(numbers(read(POLICY)))
+def test_every_rubric_criterion_has_a_pass_example() -> None:
+    examples = pass_examples()
+    assert examples, "no criteria found in the rubric"
+    assert [heading for heading, found in examples.items() if not found] == []
+
+
+def test_a_rubric_pass_example_quotes_only_what_the_policy_gives() -> None:
+    # A passing example must not teach the judge a time or amount the policy does not give, or
+    # the response time of a different urgency level. Only the quoted reply is read: numbers in
+    # the example's context ("2 earlier tickets") are not promises.
+    policy = set(numbers(read(POLICY)))
+    times = response_times()
+    checked = 0
+    for example in (e for found in pass_examples().values() for e in found):
+        context, _, rest = example.partition('"')
+        quoted = numbers(rest.rpartition('"')[0])
+        checked += len(quoted)
+        assert set(quoted) <= policy, example
+        quoted_times = [n for n in quoted if n in times.values()]
+        if quoted_times:
+            level = re.search(r"\bP[1-4]\b", context)
+            assert level is not None, f"names no urgency level: {example}"
+            assert set(quoted_times) == {times[level.group()]}, example
+    assert checked, "no numbers found in the rubric's pass examples"
 
 
 @pytest.mark.parametrize("document", [POLICY, GUIDE, RUBRIC, SPEC], ids=lambda p: p.name)
 def test_every_link_resolves(document: Path) -> None:
+    text = prose(read(document))
+    targets = INLINE_LINK.findall(text) + REFERENCE_LINK.findall(text)
+    assert targets, "no links found"
     broken = []
-    for target in LINK.findall(prose(read(document))):
+    for target in targets:
         if target.startswith(("http://", "https://", "mailto:")):
             continue
         path, _, anchor = target.partition("#")
         linked = (document.parent / path).resolve() if path else document
-        if not linked.exists():
+        checks_anchor = bool(anchor) and linked.suffix == ".md"
+        if not linked.exists() or (checks_anchor and anchor not in anchors(linked)):
             broken.append(target)
-        elif anchor and linked.suffix == ".md":
-            headings = re.findall(r"(?m)^#{1,6} .+$", read(linked))
-            if anchor not in {slug(heading) for heading in headings}:
-                broken.append(target)
     assert broken == []
